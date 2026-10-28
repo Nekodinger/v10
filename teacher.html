@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Guru · Emergent</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#525FE1">
+<link rel="icon" type="image/png" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/logo-192.png">
+<link rel="preload" href="assets/fonts/space-grotesk-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/mathjax-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" id="MathJax-script" async></script>
+</head>
+<body class="teacher-shell">
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img class="brand-mark" src="assets/logo-96.png" alt="Logo Emergent" width="44" height="44">
+      <span class="brand-text">
+        <span class="brand-title">Emergent</span>
+        <span class="brand-sub" data-i18n="teacher.brandsub">Panel Guru</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" data-i18n-title="header.lang.title" title="Ganti bahasa">
+        <button type="button" class="lang-switch-btn" data-lang="id">ID</button>
+        <button type="button" class="lang-switch-btn" data-lang="en">EN</button>
+      </div>
+      <button type="button" id="teacher-logout-btn" class="menu-btn" hidden data-i18n="teacher.logout">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<main class="teacher-main">
+  <section class="teacher-login" id="teacher-login-card">
+    <p class="eyebrow" data-i18n="teacher.login.eyebrow">Panel Guru</p>
+    <h2 data-i18n="teacher.login.title">Masuk Panel Guru</h2>
+    <p class="muted small" data-i18n="tl.login.desc">Masuk dengan nama pengguna dan kata sandi akun guru Anda. Akun guru dibuat dan dikelola oleh admin Emergent.</p>
+    <label><span data-i18n="tl.username">Nama pengguna</span>
+      <input type="text" id="teacher-username-input" autocomplete="username" autocapitalize="none" spellcheck="false" data-i18n-placeholder="tl.username.ph" placeholder="misal: bu.rina">
+    </label>
+    <label><span data-i18n="tl.password">Kata sandi</span>
+      <input type="password" id="teacher-password-input" autocomplete="current-password" data-i18n-placeholder="tl.password.ph" placeholder="Ketik kata sandi">
+    </label>
+    <button type="button" id="teacher-login-btn" class="btn btn-primary" data-i18n="teacher.login.btn">Masuk</button>
+    <p class="onboarding-status" id="teacher-login-status"></p>
+    <p class="muted small" style="margin-top:14px"><span data-i18n="tl.adminlink.text">Pengelola situs?</span> <a href="admin.html" data-i18n="tl.adminlink">Buka Panel Admin</a></p>
+  </section>
+
+  <div id="teacher-panel" hidden>
+    <div class="t-whoami"><span class="muted small" data-i18n="tl.signedinas">Masuk sebagai</span> <strong id="teacher-whoami">-</strong>
+      <button type="button" class="link-btn small" id="teacher-changepw-btn" data-i18n="tl.changepw">Ganti kata sandi</button></div>
+    <nav class="t-tabs t-tabs-4" role="tablist">
+      <button type="button" class="t-tab active" data-pane="session"><span class="tab-num">01</span><span data-i18n="teacher.tab.session">Class Management</span></button>
+      <button type="button" class="t-tab" data-pane="accounts"><span class="tab-num">02</span><span data-i18n="teacher.tab.accounts">Group Management</span></button>
+      <button type="button" class="t-tab" data-pane="records"><span class="tab-num">03</span><span data-i18n="teacher.tab.records">Group Monitoring</span></button>
+      <button type="button" class="t-tab" data-pane="quiz"><span class="tab-num">04</span><span data-i18n="teacher.tab.quiz">Quiz</span></button>
+    </nav>
+
+    <!-- 01 Sesi kelas -->
+    <section class="t-pane active" id="pane-session">
+      <div class="t-grid">
+        <div>
+          <div class="t-card">
+            <h3 data-i18n="teacher.session.title2">Sesi kelas</h3>
+            <p class="t-card-desc" data-i18n="teacher.session.desc2">Pilih topik yang dikerjakan bersama. Siswa masuk dengan kode 6 huruf; tab di dalam topik tetap mengikuti progres masing-masing.</p>
+            <div id="teacher-no-session">
+              <div class="t-row">
+                <label><span data-i18n="teacher.topic.label">Topik</span><select id="teacher-topic-select"></select></label>
+                <label><span data-i18n="teacher.tab.label">Tab</span>
+                  <select id="teacher-tab-select">
+                    <option value="0" data-i18n="tab.materi">Materi</option>
+                    <option value="1" data-i18n="tab.eksperimen">Eksperimen</option>
+                    <option value="2" data-i18n="tab.latihan">Latihan Soal</option>
+                    <option value="3" data-i18n="tab.lab">Makerspace</option>
+                  </select>
+                </label>
+              </div>
+              <div class="lab-actions"><button type="button" id="teacher-start-btn" class="btn btn-primary" data-i18n="teacher.startsession.btn">Mulai Sesi Baru</button></div>
+            </div>
+            <div id="teacher-has-session" hidden>
+              <p class="muted small" style="margin:0" data-i18n="teacher.sharecode.desc">Kode untuk dibagikan ke siswa (tulis di papan tulis / sebutkan):</p>
+              <div class="session-code-display" id="teacher-code-display">------</div>
+              <div class="t-row">
+                <label><span data-i18n="teacher.activetopic.label">Topik aktif sekarang</span><select id="teacher-topic-select-2"></select></label>
+                <label><span data-i18n="teacher.activetab.label">Tab aktif sekarang</span>
+                  <select id="teacher-tab-select-2">
+                    <option value="0" data-i18n="tab.materi">Materi</option>
+                    <option value="1" data-i18n="tab.eksperimen">Eksperimen</option>
+                    <option value="2" data-i18n="tab.latihan">Latihan Soal</option>
+                    <option value="3" data-i18n="tab.lab">Makerspace</option>
+                  </select>
+                </label>
+              </div>
+              <div class="lab-actions">
+                <button type="button" id="teacher-update-btn" class="btn btn-primary" data-i18n="teacher.applychanges.btn">Terapkan Perubahan</button>
+                <button type="button" id="teacher-end-btn" class="btn btn-secondary" data-i18n="teacher.endsession.btn">Akhiri Sesi</button>
+              </div>
+            </div>
+            <p class="teacher-note" id="teacher-session-status"></p>
+          </div>
+        </div>
+        <div>
+          <div class="t-card">
+            <h3 data-i18n="teacher.gate.title2">Menunggu konfirmasi</h3>
+            <p class="t-card-desc" data-i18n="teacher.gate.desc2">Siswa yang lulus pertanyaan konfirmasi Eksperimen atau mengirim refleksi Makerspace. Setujui untuk membuka tahap berikutnya.</p>
+            <div class="t-table-wrap">
+              <table class="t-table">
+                <thead><tr><th data-i18n="teacher.gate.th.student">Siswa</th><th data-i18n="teacher.gate.th.stage">Tahap</th><th data-i18n="teacher.gate.th.summary">Ringkasan/Refleksi Siswa</th><th data-i18n="teacher.gate.th.submitted">Dikirim</th><th data-i18n="teacher.gate.th.action">Aksi</th></tr></thead>
+                <tbody id="gate-pending-body"></tbody>
+              </table>
+            </div>
+            <p class="teacher-note" id="gate-decide-status"></p>
+          </div>
+          <div class="t-card">
+            <h3 data-i18n="teacher.roster.title2">Siswa yang sedang online</h3>
+            <p class="t-card-desc" data-i18n="teacher.roster.desc2">Diperbarui setiap 8 detik. Menampilkan siswa yang aktif dalam 5 menit terakhir, di dalam maupun di luar sesi.</p>
+            <div class="t-table-wrap">
+              <table class="t-table">
+                <thead><tr><th data-i18n="teacher.th.student">Siswa</th><th data-i18n="teacher.th.activity">Aktivitas sekarang</th><th data-i18n="teacher.th.mode">Mode</th><th data-i18n="teacher.th.lastreport">Terakhir lapor</th></tr></thead>
+                <tbody id="roster-body"></tbody>
+              </table>
+            </div>
+            <p class="teacher-note" id="roster-count"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Rekap & jawaban -->
+    <!-- 02 Siswa & kelompok -->
+    <section class="t-pane" id="pane-accounts">
+      <div class="t-grid">
+        <div>
+          <div class="t-card">
+            <h3 data-i18n="acc.add.title">Daftarkan siswa</h3>
+            <p class="t-card-desc" data-i18n="acc.add.desc">Satu siswa per baris. Tulis kelompoknya setelah tanda titik koma. Siswa pertama di tiap kelompok otomatis menjadi ketua (bisa diganti).</p>
+            <label><span data-i18n="field.class">Kelas</span><input type="text" id="acc-add-class" maxlength="20" data-i18n-placeholder="acc.add.class.placeholder" placeholder="misal: XII IPA 1"></label>
+            <label><span data-i18n="acc.add.lines">Nama siswa; kelompok</span>
+              <textarea id="acc-add-lines" rows="8" data-i18n-placeholder="acc.add.lines.placeholder" placeholder="Rina Putri; Kelompok 1&#10;Budi Santoso; Kelompok 1&#10;Sari Dewi; Kelompok 2"></textarea>
+            </label>
+            <p class="muted small" data-i18n="acc.add.tip">Bisa juga ditempel langsung dari Excel (kolom Nama lalu Kelompok).</p>
+            <button type="button" id="acc-add-btn" class="btn btn-primary" data-i18n="acc.add.btn">Daftarkan &amp; buat PIN</button>
+            <p class="onboarding-status" id="acc-add-status"></p>
+          </div>
+          <div class="t-card">
+            <h3 data-i18n="acc.howto.title">Cara siswa masuk</h3>
+            <ol class="small acc-howto">
+              <li data-i18n="acc.howto.1">Bagikan kartu login (nama + PIN 6 angka) ke tiap siswa.</li>
+              <li data-i18n="acc.howto.2">Siswa membuka situs, pilih "Saya siswa", lalu ketik nama dan PIN.</li>
+              <li data-i18n="acc.howto.3">Materi dan Latihan Soal dikerjakan sendiri-sendiri. Eksperimen dan Makerspace dikerjakan kelompok di perangkat ketua; anggota melihat hasilnya (baca saja).</li>
+              <li data-i18n="acc.howto.4">Kalau ketua lupa menutup perangkat lama, klik "Lepas kunci perangkat" pada kelompoknya.</li>
+              <li data-i18n="acc.howto.5">Untuk menghapus atau memindahkan siswa, centang siswanya (atau centang nama kelompok untuk memilih satu kelompok), lalu pilih aksi dan klik Terapkan.</li>
+            </ol>
+          </div>
+        </div>
+        <div>
+          <div class="t-card">
+            <div class="t-toolbar">
+              <select id="acc-class-filter"></select>
+              <label class="acc-showpin"><input type="checkbox" id="acc-show-pin"> <span data-i18n="acc.showpin">Tampilkan PIN</span></label>
+              <span class="spacer"></span>
+              <button type="button" class="btn btn-secondary btn-small" id="acc-print-btn" data-i18n="acc.print.btn">Cetak kartu login</button>
+              <button type="button" class="btn btn-secondary btn-small" id="acc-xlsx-btn" data-i18n="acc.xlsx.btn">Ekspor Excel</button>
+              <button type="button" class="btn btn-ghost btn-small" id="acc-refresh-btn" data-i18n="teacher.records.refresh">Muat ulang</button>
+            </div>
+            <p class="muted small" id="acc-status"></p>
+            <div class="acc-bulk" id="acc-bulk">
+              <label class="acc-check"><input type="checkbox" id="acc-select-all"> <span data-i18n="acc.bulk.all">Pilih semua</span></label>
+              <span class="acc-bulk-count" id="acc-bulk-count">0 dipilih</span>
+              <select id="acc-bulk-action" aria-label="Aksi">
+                <option value="" data-i18n="acc.bulk.choose">Pilih aksi...</option>
+                <option value="group" data-i18n="acc.bulk.togroup">Pindahkan ke kelompok</option>
+                <option value="class" data-i18n="acc.bulk.toclass">Pindahkan ke kelas</option>
+                <option value="delete" data-i18n="acc.bulk.delete">Hapus siswa</option>
+              </select>
+              <input type="text" id="acc-bulk-class" list="acc-bulk-class-list" maxlength="20" hidden data-i18n-placeholder="acc.bulk.class.ph" placeholder="Kelas tujuan, misal XII IPA 2">
+              <datalist id="acc-bulk-class-list"></datalist>
+              <input type="text" id="acc-bulk-group" list="acc-bulk-group-list" maxlength="40" hidden data-i18n-placeholder="acc.bulk.group.ph" placeholder="Nama kelompok (kosongkan = tanpa kelompok)">
+              <datalist id="acc-bulk-group-list"></datalist>
+              <button type="button" class="btn btn-primary btn-small" id="acc-bulk-apply" disabled data-i18n="acc.bulk.apply">Terapkan</button>
+            </div>
+            <div id="acc-groups"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="t-pane" id="pane-records">
+      <div class="t-stats" id="records-stats"></div>
+      <div class="t-toolbar">
+        <input type="text" id="records-search" data-i18n-placeholder="teacher.records.search" placeholder="Cari nama...">
+        <select id="records-class-filter"></select>
+        <button type="button" class="btn btn-secondary btn-small" id="records-refresh-btn" data-i18n="teacher.records.refresh">Muat ulang</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-primary btn-small" id="export-xlsx-btn" data-i18n="teacher.export.xlsx">Ekspor Excel (.xlsx)</button>
+        <button type="button" class="btn btn-secondary btn-small" id="export-pdf-btn" data-i18n="teacher.export.pdf">Ekspor PDF</button>
+      </div>
+      <p class="teacher-note" id="records-status"></p>
+      <div class="t-table-wrap">
+        <table class="t-table" id="records-table">
+          <thead><tr>
+            <th data-i18n="teacher.rec.student">Siswa</th>
+            <th data-i18n="teacher.rec.class">Kelas</th>
+            <th data-i18n="teacher.rec.group">Kelompok</th>
+            <th data-i18n="teacher.rec.stage">Tahap</th>
+            <th data-i18n="teacher.rec.slides">Slide</th>
+            <th data-i18n="teacher.rec.materi">Konfirmasi Materi</th>
+            <th data-i18n="teacher.rec.lkpd">LKPD</th>
+            <th data-i18n="teacher.rec.latihan">Latihan</th>
+            <th data-i18n="teacher.rec.quiz">Kuis</th>
+            <th data-i18n="teacher.rec.sim">Simulasi AI</th>
+            <th data-i18n="teacher.rec.gates">Checkpoint guru</th>
+            <th data-i18n="teacher.rec.last">Terakhir aktif</th>
+          </tr></thead>
+          <tbody id="records-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 Quiz: kuis (popup) atau tes sumatif (lembar tes) -->
+    <section class="t-pane" id="pane-quiz">
+      <div class="qz-modebar">
+        <div class="qz-seg" role="tablist" aria-label="Jenis asesmen">
+          <button type="button" class="qz-seg-btn active" data-qmode="quiz" role="tab"><strong data-i18n="qz.mode.quiz">Kuis</strong><span data-i18n="qz.mode.quiz.desc">Soal singkat, muncul sebagai pop-up</span></button>
+          <button type="button" class="qz-seg-btn" data-qmode="test" role="tab"><strong data-i18n="qz.mode.test">Tes Sumatif</strong><span data-i18n="qz.mode.test.desc">Lembar tes lengkap, dikerjakan langsung di web</span></button>
+        </div>
+        <label class="qz-topic"><span data-i18n="quiz.topic.label">Topik</span><select id="quiz-topic-select"></select></label>
+      </div>
+
+      <!-- Mode Kuis -->
+      <div id="qz-pane-quiz">
+        <div class="t-grid">
+          <div>
+            <div class="t-card">
+              <h3 data-i18n="qz.add.title">Tambah soal</h3>
+              <p class="t-card-desc" data-i18n="qz.add.desc">Pilih jenis soal, tulis soalnya, lalu simpan. Bank soal tersimpan otomatis setiap kali soal disimpan. Rumus ditulis di antara tanda $...$.</p>
+              <div class="qz-add-row">
+                <button type="button" class="btn btn-primary btn-small" data-qadd="mcq" data-i18n="qz.add.mcq">+ Pilihan ganda</button>
+                <button type="button" class="btn btn-secondary btn-small" data-qadd="short" data-i18n="qz.add.short">+ Isian singkat</button>
+                <button type="button" class="btn btn-secondary btn-small" data-qadd="essay" data-i18n="qz.add.essay">+ Uraian</button>
+                <button type="button" class="btn btn-ghost btn-small" id="qz-import-toggle" data-i18n="qz.import.btn">Tempel banyak soal</button>
+              </div>
+              <div id="qz-import-box" class="qz-import" hidden>
+                <p class="muted small" data-i18n="qz.import.help">Tempel soal dengan format berikut. Pisahkan setiap soal dengan baris kosong. Soal tanpa opsi A-D menjadi isian singkat.</p>
+                <pre class="qz-import-example">1. Satuan tesla setara dengan ....
+A. N A m^-1
+B. N A^-1 m^-1
+C. N m A^-1
+D. kg A s^-2
+Kunci: B
+
+2. Sebutkan kaidah untuk menentukan arah gaya pada kawat berarus.
+Jawaban: kaidah tangan kiri Fleming</pre>
+                <textarea id="qz-import-text" rows="8"></textarea>
+                <div class="lab-actions"><button type="button" class="btn btn-primary btn-small" id="qz-import-btn" data-i18n="qz.import.add">Tambahkan ke bank soal</button></div>
+              </div>
+              <p class="teacher-note" id="quiz-generate-status"></p>
+            </div>
+            <div class="t-card">
+              <h3 data-i18n="quiz.active.title">Kuis yang berjalan</h3>
+              <div id="quiz-active-card" class="quiz-active-card" hidden></div>
+              <div class="lab-actions">
+                <button type="button" id="quiz-end-btn" class="btn btn-secondary btn-small" hidden data-i18n="quiz.end.btn">Akhiri Kuis</button>
+                <button type="button" id="quiz-viewresults-btn" class="btn btn-primary btn-small" data-i18n="quiz.viewresults.btn">Lihat Jawaban Siswa</button>
+              </div>
+              <h4 style="margin-top:20px" data-i18n="quiz.history.title">Riwayat kuis</h4>
+              <div class="t-table-wrap"><table class="t-table"><thead><tr><th data-i18n="quiz.history.time">Waktu</th><th data-i18n="qz.history.kind">Jenis</th><th data-i18n="quiz.history.count">Soal</th><th data-i18n="quiz.history.answers">Jawaban</th><th></th></tr></thead><tbody id="quiz-history-body"></tbody></table></div>
+            </div>
+          </div>
+          <div class="t-card">
+            <div class="t-toolbar" style="margin-bottom:6px">
+              <h3 style="margin:0" data-i18n="quiz.list.title">Daftar soal</h3>
+              <span class="spacer"></span>
+              <label class="acc-check small"><input type="checkbox" id="qz-select-all"> <span data-i18n="acc.bulk.all">Pilih semua</span></label>
+              <button type="button" id="quiz-save-btn" class="btn btn-secondary btn-small" data-i18n="quiz.save.btn">Simpan Bank Soal</button>
+              <button type="button" id="quiz-publish-btn" class="btn btn-primary btn-small" data-i18n="quiz.publish.btn2">Publikasikan yang dicentang</button>
+            </div>
+            <p class="teacher-note" id="quiz-save-status"></p>
+            <div id="quiz-editor-container"></div>
+            <p class="teacher-note" id="quiz-bank-loading-note" data-i18n="quiz.bank.loading" hidden>Memuat bank soal...</p>
+            <div id="quiz-question-list" class="quiz-question-list"></div>
+            <p class="muted small" id="quiz-bank-empty-note" data-i18n="qz.bank.empty" hidden>Belum ada soal. Klik "+ Pilihan ganda" untuk menambah soal pertama.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mode Tes Sumatif -->
+      <div id="qz-pane-test" hidden>
+        <div class="t-grid">
+          <div>
+            <div class="t-card">
+              <h3 data-i18n="ts.card.title">Tes sumatif</h3>
+              <p class="t-card-desc" data-i18n="ts.card.desc">Isi bawaan sama dengan dokumen Tes Sumatif Magnetic Fields (10 pilihan ganda, 3 uraian, 4 soal berpikir kreatif, skor maksimum 48). Klik Edit bila ingin mengubahnya.</p>
+              <p class="small" id="ts-source-note"></p>
+              <div class="t-row">
+                <label><span data-i18n="ts.duration">Durasi (menit)</span><input type="number" id="ts-duration" min="5" max="240" value="60"></label>
+              </div>
+              <div class="lab-actions">
+                <button type="button" class="btn btn-secondary btn-small" id="ts-edit-btn" data-i18n="ts.edit">Edit tes</button>
+                <button type="button" class="btn btn-secondary btn-small" id="ts-save-btn" hidden data-i18n="ts.save">Simpan perubahan</button>
+                <button type="button" class="btn btn-ghost btn-small" id="ts-cancel-btn" hidden data-i18n="ts.cancel">Batal</button>
+                <button type="button" class="btn btn-ghost btn-small" id="ts-reset-btn" data-i18n="ts.reset">Kembalikan ke default</button>
+              </div>
+              <div class="lab-actions">
+                <button type="button" class="btn btn-primary" id="ts-publish-btn" data-i18n="ts.publish">Publikasikan ke sesi kelas</button>
+                <button type="button" class="btn btn-secondary" id="ts-end-btn" hidden data-i18n="ts.end">Akhiri tes</button>
+              </div>
+              <div id="ts-active-card" class="quiz-active-card" hidden></div>
+              <p class="teacher-note" id="ts-status"></p>
+            </div>
+            <div class="t-card">
+              <div class="t-toolbar" style="margin-bottom:6px">
+                <h3 style="margin:0" data-i18n="ts.results.title">Jawaban &amp; penilaian</h3>
+                <span class="spacer"></span>
+                <select id="ts-results-select" aria-label="Pilih tes"></select>
+                <button type="button" class="btn btn-ghost btn-small" id="ts-results-refresh" data-i18n="teacher.records.refresh">Muat ulang</button>
+              </div>
+              <p class="muted small" data-i18n="ts.results.desc">Pilihan ganda dinilai otomatis. Uraian dan berpikir kreatif dinilai guru dengan pedoman penskoran.</p>
+              <div class="t-table-wrap"><table class="t-table"><thead><tr><th data-i18n="teacher.th.student">Siswa</th><th data-i18n="ts.results.status">Status</th><th data-i18n="ts.results.auto">PG</th><th data-i18n="ts.results.total">Total</th><th></th></tr></thead><tbody id="ts-results-body"></tbody></table></div>
+            </div>
+          </div>
+          <div class="t-card ts-paper-card">
+            <div class="t-toolbar" style="margin-bottom:6px">
+              <h3 style="margin:0" id="ts-paper-heading" data-i18n="ts.preview">Pratinjau lembar tes</h3>
+            </div>
+            <div id="ts-paper"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer"><div class="footer-bottom" data-i18n="footer.copy">Emergent · Platform PjBL &amp; Generative AI untuk Cambridge 9702</div></footer>
+
+<div id="quiz-results-modal" class="modal" hidden>
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <h3 data-i18n="quiz.results.title">Jawaban Siswa</h3>
+      <button type="button" id="quiz-results-close-x" class="icon-btn" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div id="quiz-results-body"></div>
+    <div class="modal-actions"><button type="button" id="quiz-results-close-btn" class="btn btn-secondary" data-i18n="quiz.results.close.btn">Tutup</button></div>
+  </div>
+</div>
+
+<div id="student-modal" class="modal" hidden>
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div><p class="eyebrow" id="student-modal-eyebrow"></p><h3 id="student-modal-title"></h3></div>
+      <button type="button" id="student-modal-close-x" class="icon-btn" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div id="student-modal-body"></div>
+    <div class="modal-actions">
+      <button type="button" id="student-delete-btn" class="btn btn-ghost btn-small" data-i18n="teacher.student.delete">Hapus data siswa ini</button>
+      <span style="flex:1"></span>
+      <button type="button" id="student-pdf-btn" class="btn btn-secondary btn-small" data-i18n="teacher.student.pdf">Unduh PDF siswa ini</button>
+      <button type="button" id="student-xlsx-btn" class="btn btn-secondary btn-small" data-i18n="teacher.student.xlsx">Unduh Excel siswa ini</button>
+      <button type="button" id="student-modal-close-btn" class="btn btn-primary btn-small" data-i18n="quiz.results.close.btn">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div id="ts-grade-modal" class="modal" hidden>
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div><p class="eyebrow" data-i18n="ts.grade.eyebrow">Penilaian tes sumatif</p><h3 id="ts-grade-title"></h3></div>
+      <button type="button" id="ts-grade-close-x" class="icon-btn" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div id="ts-grade-body"></div>
+    <div class="modal-actions">
+      <span class="small" id="ts-grade-total"></span>
+      <span style="flex:1"></span>
+      <button type="button" id="ts-grade-close-btn" class="btn btn-secondary btn-small" data-i18n="quiz.results.close.btn">Tutup</button>
+      <button type="button" id="ts-grade-save-btn" class="btn btn-primary btn-small" data-i18n="ts.grade.save">Simpan nilai</button>
+    </div>
+  </div>
+</div>
+
+<div id="pw-modal" class="modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3 data-i18n="tl.changepw">Ganti kata sandi</h3>
+      <button type="button" class="icon-btn" data-close-modal="pw-modal" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <label><span data-i18n="tl.pw.current">Kata sandi saat ini</span><input type="password" id="pw-current" autocomplete="current-password"></label>
+    <label><span data-i18n="tl.pw.next">Kata sandi baru (minimal 8 karakter)</span><input type="password" id="pw-next" autocomplete="new-password"></label>
+    <p class="onboarding-status" id="pw-status"></p>
+    <div class="modal-actions"><button type="button" class="btn btn-secondary" data-close-modal="pw-modal" data-i18n="ts.cancel">Batal</button><button type="button" class="btn btn-primary" id="pw-save-btn" data-i18n="tl.pw.save">Simpan</button></div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-v9.js"></script>
+<script src="js/i18n-v10.js"></script>
+<script src="js/api.js"></script>
+<script src="js/demo-simulations.js"></script>
+<script src="js/content.js"></script>
+<script src="js/lkpd-content.js"></script>
+<script src="vendor/xlsx.full.min.js" defer></script>
+<script src="vendor/jspdf.umd.min.js" defer></script>
+<script src="vendor/jspdf.plugin.autotable.min.js" defer></script>
+<script src="js/teacher-export.js" defer></script>
+<script src="js/teacher.js" defer></script>
+<script src="js/teacher-accounts.js" defer></script>
+<script src="js/sumatif-render.js" defer></script>
+<script src="js/teacher-sumatif.js" defer></script>
+</body>
+</html>

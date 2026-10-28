@@ -1,0 +1,24 @@
+{
+  "name": "emergent",
+  "version": "10.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Emergent - Cambridge 9702 PjBL + Generative AI learning platform (static site + Vercel API + Supabase Postgres)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node tests/dev-server.mjs",
+    "test": "node tests/api.test.mjs && node tests/e2e.mjs"
+  },
+  "dependencies": {
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.11",
+    "jspdf": "2.5.2",
+    "jspdf-autotable": "3.8.4",
+    "mathjax": "^3.2.2",
+    "xlsx": "0.18.5"
+  }
+}

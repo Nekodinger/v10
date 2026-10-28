@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin · Emergent</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#525FE1">
+<link rel="icon" type="image/png" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/logo-192.png">
+<link rel="preload" href="assets/fonts/space-grotesk-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="teacher-shell admin-shell">
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img class="brand-mark" src="assets/logo-96.png" alt="Logo Emergent" width="44" height="44">
+      <span class="brand-text">
+        <span class="brand-title">Emergent</span>
+        <span class="brand-sub" data-i18n="admin.brandsub">Panel Admin</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" data-i18n-title="header.lang.title" title="Ganti bahasa">
+        <button type="button" class="lang-switch-btn" data-lang="id">ID</button>
+        <button type="button" class="lang-switch-btn" data-lang="en">EN</button>
+      </div>
+      <button type="button" id="admin-logout-btn" class="menu-btn" hidden data-i18n="teacher.logout">Keluar</button>
+    </div>
+  </div>
+</header>
+
+<main class="teacher-main">
+  <section class="teacher-login" id="admin-login-card">
+    <p class="eyebrow" data-i18n="admin.brandsub">Panel Admin</p>
+    <h2 data-i18n="admin.login.title">Masuk Panel Admin</h2>
+    <p class="muted small" data-i18n="admin.login.desc">Hanya untuk pengelola Emergent. Admin membuat akun guru dan memantau pemakaian token AI.</p>
+    <label><span data-i18n="tl.username">Nama pengguna</span>
+      <input type="text" id="admin-username-input" autocomplete="username" autocapitalize="none" spellcheck="false" value="admin">
+    </label>
+    <label><span data-i18n="tl.password">Kata sandi</span>
+      <input type="password" id="admin-password-input" autocomplete="current-password" data-i18n-placeholder="tl.password.ph" placeholder="Ketik kata sandi">
+    </label>
+    <button type="button" id="admin-login-btn" class="btn btn-primary" data-i18n="teacher.login.btn">Masuk</button>
+    <p class="onboarding-status" id="admin-login-status"></p>
+    <p class="muted small" style="margin-top:14px"><span data-i18n="admin.teacherlink.text">Guru?</span> <a href="teacher.html" data-i18n="admin.teacherlink">Buka Panel Guru</a></p>
+  </section>
+
+  <div id="admin-panel" hidden>
+    <div class="admin-warn" id="admin-mustchange" hidden>
+      <strong data-i18n="admin.mustchange.title">Ganti kata sandi admin.</strong>
+      <span data-i18n="admin.mustchange.desc">Anda masuk dengan kata sandi dari Environment Variable (ADMIN_PASSWORD). Buat kata sandi admin sendiri di tab Pengaturan.</span>
+    </div>
+    <nav class="t-tabs t-tabs-3" role="tablist">
+      <button type="button" class="t-tab active" data-pane="teachers"><span class="tab-num">01</span><span data-i18n="admin.tab.teachers">Akun Guru</span></button>
+      <button type="button" class="t-tab" data-pane="usage"><span class="tab-num">02</span><span data-i18n="admin.tab.usage">Pemakaian Token</span></button>
+      <button type="button" class="t-tab" data-pane="settings"><span class="tab-num">03</span><span data-i18n="admin.tab.settings">Pengaturan</span></button>
+    </nav>
+
+    <!-- 01 Akun guru -->
+    <section class="t-pane active" id="pane-teachers">
+      <div class="t-grid">
+        <div>
+          <div class="t-card">
+            <h3 data-i18n="admin.create.title">Buat akun guru</h3>
+            <p class="t-card-desc" data-i18n="admin.create.desc">Guru masuk ke Panel Guru dengan nama pengguna dan kata sandi ini. Kosongkan kata sandi agar dibuatkan otomatis.</p>
+            <label><span data-i18n="admin.f.name">Nama guru</span><input type="text" id="adm-new-name" maxlength="80" data-i18n-placeholder="admin.f.name.ph" placeholder="misal: Rina Kartika, S.Pd."></label>
+            <label><span data-i18n="tl.username">Nama pengguna</span><input type="text" id="adm-new-username" maxlength="30" autocapitalize="none" spellcheck="false" data-i18n-placeholder="tl.username.ph" placeholder="misal: bu.rina"></label>
+            <label><span data-i18n="admin.f.password">Kata sandi (opsional, minimal 8 karakter)</span><input type="text" id="adm-new-password" maxlength="80" autocomplete="off"></label>
+            <div class="lab-actions"><button type="button" class="btn btn-primary" id="adm-create-btn" data-i18n="admin.create.btn">Buat akun</button></div>
+            <p class="teacher-note" id="adm-create-status"></p>
+            <div class="admin-secret" id="adm-secret" hidden></div>
+          </div>
+          <div class="t-card" id="adm-legacy-card" hidden>
+            <h3 data-i18n="admin.legacy.title">Data lama tanpa guru</h3>
+            <p class="t-card-desc" id="adm-legacy-desc"></p>
+            <div class="t-row">
+              <label><span data-i18n="admin.legacy.to">Serahkan ke guru</span><select id="adm-legacy-select"></select></label>
+            </div>
+            <div class="lab-actions"><button type="button" class="btn btn-secondary" id="adm-legacy-btn" data-i18n="admin.legacy.btn">Serahkan data</button></div>
+            <p class="teacher-note" id="adm-legacy-status"></p>
+          </div>
+        </div>
+        <div class="t-card">
+          <div class="t-toolbar">
+            <h3 style="margin:0" data-i18n="admin.list.title">Daftar akun guru</h3>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-ghost btn-small" id="adm-teachers-refresh" data-i18n="teacher.records.refresh">Muat ulang</button>
+          </div>
+          <div class="t-table-wrap">
+            <table class="t-table">
+              <thead><tr><th data-i18n="admin.th.teacher">Guru</th><th data-i18n="admin.th.status">Status</th><th data-i18n="admin.th.students">Siswa</th><th data-i18n="admin.th.lastlogin">Terakhir masuk</th><th data-i18n="teacher.gate.th.action">Aksi</th></tr></thead>
+              <tbody id="adm-teachers-body"></tbody>
+            </table>
+          </div>
+          <p class="teacher-note" id="adm-list-status"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Pemakaian token -->
+    <section class="t-pane" id="pane-usage">
+      <div class="t-card">
+        <div class="t-toolbar">
+          <h3 style="margin:0" data-i18n="admin.usage.title">Pemakaian token AI</h3>
+          <span class="spacer"></span>
+          <label class="inline-label"><span data-i18n="admin.usage.period">Periode</span>
+            <select id="adm-period">
+              <option value="today" data-i18n="admin.p.today">Hari ini</option>
+              <option value="7d" selected data-i18n="admin.p.7d">7 hari terakhir</option>
+              <option value="30d" data-i18n="admin.p.30d">30 hari terakhir</option>
+              <option value="all" data-i18n="admin.p.all">Semua waktu</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-ghost btn-small" id="adm-usage-refresh" data-i18n="teacher.records.refresh">Muat ulang</button>
+          <button type="button" class="btn btn-secondary btn-small" id="adm-usage-csv" data-i18n="admin.usage.csv">Unduh CSV</button>
+        </div>
+        <p class="muted small" id="adm-ai-status"></p>
+        <div class="admin-stats" id="adm-stats"></div>
+      </div>
+      <div class="t-grid admin-usage-grid">
+        <div>
+          <div class="t-card">
+            <h3 data-i18n="admin.usage.byteacher">Per guru (kelas)</h3>
+            <p class="t-card-desc" data-i18n="admin.usage.byteacher.desc">Jumlah token dari guru itu sendiri dan semua siswanya.</p>
+            <div class="t-table-wrap"><table class="t-table"><thead><tr><th data-i18n="admin.th.teacher">Guru</th><th data-i18n="admin.th.requests">Permintaan</th><th data-i18n="admin.th.input">Input</th><th data-i18n="admin.th.output">Output</th><th data-i18n="admin.th.total">Total</th></tr></thead><tbody id="adm-byteacher"></tbody></table></div>
+          </div>
+          <div class="t-card">
+            <h3 data-i18n="admin.usage.bykind">Per fitur</h3>
+            <div class="t-table-wrap"><table class="t-table"><thead><tr><th data-i18n="teacher.usage.kind">Fitur</th><th data-i18n="admin.th.requests">Permintaan</th><th data-i18n="admin.th.total">Total</th><th data-i18n="admin.th.today">Hari ini / batas</th></tr></thead><tbody id="adm-bykind"></tbody></table></div>
+            <p class="muted small" id="adm-models"></p>
+          </div>
+          <div class="t-card">
+            <h3 data-i18n="admin.usage.byday">Per hari</h3>
+            <div class="admin-bars" id="adm-byday"></div>
+          </div>
+        </div>
+        <div class="t-card">
+          <div class="t-toolbar">
+            <h3 style="margin:0" data-i18n="admin.usage.byaccount">Per akun</h3>
+            <span class="spacer"></span>
+            <select id="adm-acc-teacher" aria-label="Guru"></select>
+            <input type="text" id="adm-acc-search" data-i18n-placeholder="admin.usage.search" placeholder="Cari nama...">
+          </div>
+          <div class="t-table-wrap"><table class="t-table"><thead><tr><th data-i18n="admin.th.account">Akun</th><th data-i18n="admin.th.teacher">Guru</th><th data-i18n="admin.th.requests">Permintaan</th><th data-i18n="admin.th.chat">Tutor</th><th data-i18n="admin.th.sim">Simulasi</th><th data-i18n="admin.th.check">Cek data</th><th data-i18n="admin.th.total">Total</th><th data-i18n="admin.th.last">Terakhir</th></tr></thead><tbody id="adm-byaccount"></tbody></table></div>
+          <p class="muted small" data-i18n="admin.usage.note">Total = token input + output. Token cache (dibaca ulang) dihitung terpisah karena jauh lebih murah.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 Pengaturan -->
+    <section class="t-pane" id="pane-settings">
+      <div class="t-card" style="max-width:560px">
+        <h3 data-i18n="admin.pw.title">Kata sandi admin</h3>
+        <p class="t-card-desc" data-i18n="admin.pw.desc">Hanya ada satu akun admin. Setelah kata sandi diganti di sini, ADMIN_PASSWORD di Vercel tidak dipakai lagi untuk masuk.</p>
+        <label><span data-i18n="tl.pw.current">Kata sandi saat ini</span><input type="password" id="adm-pw-current" autocomplete="current-password"></label>
+        <label><span data-i18n="admin.pw.next">Kata sandi baru (minimal 10 karakter)</span><input type="password" id="adm-pw-next" autocomplete="new-password"></label>
+        <label><span data-i18n="admin.pw.repeat">Ulangi kata sandi baru</span><input type="password" id="adm-pw-repeat" autocomplete="new-password"></label>
+        <div class="lab-actions"><button type="button" class="btn btn-primary" id="adm-pw-save" data-i18n="tl.pw.save">Simpan</button></div>
+        <p class="teacher-note" id="adm-pw-status"></p>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer"><div class="footer-bottom" data-i18n="footer.copy">Emergent · Platform PjBL &amp; Generative AI untuk Cambridge 9702</div></footer>
+
+<div id="adm-edit-modal" class="modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3 data-i18n="admin.edit.title">Ubah akun guru</h3>
+      <button type="button" class="icon-btn" data-close-modal="adm-edit-modal" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <label><span data-i18n="admin.f.name">Nama guru</span><input type="text" id="adm-edit-name" maxlength="80"></label>
+    <label><span data-i18n="tl.username">Nama pengguna</span><input type="text" id="adm-edit-username" maxlength="30" autocapitalize="none" spellcheck="false"></label>
+    <p class="onboarding-status" id="adm-edit-status"></p>
+    <div class="modal-actions"><button type="button" class="btn btn-secondary" data-close-modal="adm-edit-modal" data-i18n="ts.cancel">Batal</button><button type="button" class="btn btn-primary" id="adm-edit-save" data-i18n="tl.pw.save">Simpan</button></div>
+  </div>
+</div>
+
+<div id="adm-delete-modal" class="modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head"><h3 data-i18n="admin.delete.title">Hapus akun guru</h3>
+      <button type="button" class="icon-btn" data-close-modal="adm-delete-modal" data-i18n-aria="chatbot.close.aria" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <p id="adm-delete-desc"></p>
+    <label><span data-i18n="admin.delete.to">Pindahkan siswa, kelompok, dan kuis ke</span><select id="adm-delete-target"></select></label>
+    <p class="onboarding-status" id="adm-delete-status"></p>
+    <div class="modal-actions"><button type="button" class="btn btn-secondary" data-close-modal="adm-delete-modal" data-i18n="ts.cancel">Batal</button><button type="button" class="btn btn-primary danger" id="adm-delete-confirm" data-i18n="admin.delete.btn">Hapus akun</button></div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-v9.js"></script>
+<script src="js/i18n-v10.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js" defer></script>
+</body>
+</html>
