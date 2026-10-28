@@ -1,0 +1,37 @@
+<section id="patterns" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.1 · Sketching field patterns</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Field patterns of permanent magnets</h2>
+</div>
+<x-embed style="position:absolute;left:144px;top:310px;width:1632px;height:549px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=1664,H=560,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+const F='Arial, Helvetica, sans-serif',PW=554,PH=490,cy=245;
+const panels=[
+ {t:'Single bar magnet',m:[[277,75,1]]},
+ {t:'Unlike poles facing: attraction',m:[[167,60,1],[387,60,1]]},
+ {t:'Like poles facing: repulsion',m:[[167,60,1],[397,60,-1]],X:[282,cy]}];
+function poles(p){const P=[];for(const[mx,h,o]of p.m){const a=h*0.8;P.push({x:mx+o*a,y:cy,q:1});P.push({x:mx-o*a,y:cy,q:-1});}return P;}
+function B(P,px,py){let bx=0,by=0;for(const p of P){const dx=px-p.x,dy=py-p.y,r=Math.hypot(dx,dy)+1e-6,k=p.q/(r*r*r);bx+=k*dx;by+=k*dy;}return[bx,by];}
+function trace(P,sx,sy,d=1){const pts=[[sx,sy]];let X=sx,Y=sy;for(let i=0;i<1400;i++){const[bx,by]=B(P,X,Y),m=Math.hypot(bx,by)*d;if(Math.abs(m)<1e-12)break;X+=2.5*bx/m;Y+=2.5*by/m;pts.push([X,Y]);if(X<-5||X>PW+5||Y<-5||Y>PH+5){pts.out=1;break;}if(P.some(p=>p.q*d<0&&Math.hypot(X-p.x,Y-p.y)<8))break;}return pts;}
+function drawL(l){x.beginPath();l.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke();}
+function arrow(X,Y,a){x.save();x.translate(X,Y);x.rotate(a);x.beginPath();x.moveTo(9,0);x.lineTo(-7,-7);x.lineTo(-7,7);x.closePath();x.fill();x.restore();}
+function panel(p,ox){x.save();x.translate(ox,0);x.beginPath();x.rect(0,0,PW,PH);x.clip();
+ const P=poles(p);x.strokeStyle='#1F6F78';x.fillStyle='#1F6F78';x.lineWidth=2;
+ for(const n of P.filter(q=>q.q>0))for(let i=0;i<12;i++){const a=(i+.5)/12*2*Math.PI,l=trace(P,n.x+8*Math.cos(a),n.y+8*Math.sin(a));x.beginPath();l.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke();
+  const k=Math.min(l.length-2,Math.floor(l.length*(l.length>300?0.25:0.5)));if(k>2){const A=l[k],Bq=l[k+1];arrow(A[0],A[1],Math.atan2(Bq[1]-A[1],Bq[0]-A[0]));}}
+ x.fillStyle='#1F6F78';for(const n of P.filter(q=>q.q<0))for(let i=0;i<12;i++){const a=(i+.5)/12*2*Math.PI,l=trace(P,n.x+8*Math.cos(a),n.y+8*Math.sin(a),-1);if(!l.out)continue;drawL(l);const k=Math.floor(l.length*0.35);if(k>2){const A=l[k+1],Bq=l[k];arrow(A[0],A[1],Math.atan2(Bq[1]-A[1],Bq[0]-A[0]));}}
+ for(const[mx,h,o]of p.m){x.fillStyle='#8E3324';x.fillRect(o>0?mx:mx-h,cy-22,h,44);x.fillStyle='#1F6F78';x.fillRect(o>0?mx-h:mx,cy-22,h,44);
+  x.fillStyle='#F3F1EC';x.font='bold 28px '+F;x.textAlign='center';x.textBaseline='middle';x.fillText('N',mx+o*h/2,cy+1);x.fillText('S',mx-o*h/2,cy+1);}
+ if(p.X){x.strokeStyle='#B8391F';x.lineWidth=4;const[X,Y]=p.X;x.beginPath();x.moveTo(X-10,Y-10);x.lineTo(X+10,Y+10);x.moveTo(X+10,Y-10);x.lineTo(X-10,Y+10);x.stroke();x.fillStyle='#B8391F';x.font='bold 26px '+F;x.fillText('X',X+24,Y-28);}
+ x.restore();x.fillStyle='#1D1D1B';x.font='26px '+F;x.textAlign='center';x.textBaseline='alphabetic';x.fillText(p.t,ox+PW/2,H-18);
+ x.strokeStyle='#CFCAC0';x.lineWidth=2;x.strokeRect(ox+1,1,PW-2,PH-2);}
+function draw(){fit();x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);panels.forEach((p,i)=>panel(p,i*(PW+1)));}
+addEventListener('resize',draw);draw();
+</script></x-embed>
+<p style="position:absolute;left:144px;top:878px;width:1632px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Fig. 2  Computed field lines. X marks a neutral point, where the two fields cancel and B = 0.</p>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">06 / 31</p>
+<aside>These patterns were computed, not drawn by hand, so the shapes are realistic. Exam sketches need: arrows on every line, lines leaving N and entering S, closer lines near the poles, and no crossing lines. For attraction, lines run straight across the gap. For repulsion, lines are pushed sideways and there is a neutral point X midway. Ask: why is X exactly midway? Because the magnets are identical.</aside>
+</section>

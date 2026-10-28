@@ -1,0 +1,38 @@
+<section id="fieldlines" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.1 · Representing a field</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Four rules for field lines</h2>
+</div>
+<div style="width:720px;display:grid;grid-template-columns:1fr 1fr;gap:36px 40px">
+<div style="display:flex;flex-direction:column;gap:8px"><p style="font-family:'Newsreader', Georgia, serif;font-size:64px;line-height:1;color:#1F6F78">1</p><h3 style="font-size:28px;font-weight:600">Direction</h3><p style="font-size:24px;line-height:1.45;color:#4A4842">Where the N end of a compass points. Outside a magnet N to S, inside S to N.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px"><p style="font-family:'Newsreader', Georgia, serif;font-size:64px;line-height:1;color:#1F6F78">2</p><h3 style="font-size:28px;font-weight:600">Spacing</h3><p style="font-size:24px;line-height:1.45;color:#4A4842">Closer lines mean a stronger field, a larger B.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px"><p style="font-family:'Newsreader', Georgia, serif;font-size:64px;line-height:1;color:#1F6F78">3</p><h3 style="font-size:28px;font-weight:600">Never cross</h3><p style="font-size:24px;line-height:1.45;color:#4A4842">B has one direction at each point, so lines cannot meet.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px"><p style="font-family:'Newsreader', Georgia, serif;font-size:64px;line-height:1;color:#1F6F78">4</p><h3 style="font-size:28px;font-weight:600">Closed loops</h3><p style="font-size:24px;line-height:1.45;color:#4A4842">No start and no end. There is no isolated N or S pole.</p></div>
+</div>
+<x-embed style="position:absolute;left:936px;top:310px;width:840px;height:579px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=620,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',cx=450,cy=300,P=[{x:cx+105,y:cy,q:1},{x:cx-105,y:cy,q:-1}];
+function B(px,py){let bx=0,by=0;for(const p of P){const dx=px-p.x,dy=py-p.y,r=Math.hypot(dx,dy)+1e-6,k=p.q/(r*r*r);bx+=k*dx;by+=k*dy;}return[bx,by];}
+function trace(sx,sy,dir,end){const pts=[[sx,sy]];let X=sx,Y=sy;for(let i=0;i<1500;i++){let[bx,by]=B(X,Y);const m=Math.hypot(bx,by)*dir;X+=3*bx/m;Y+=3*by/m;pts.push([X,Y]);if(X<-20||X>W+20||Y<-20||Y>H+20)break;if(Math.hypot(X-end.x,Y-end.y)<10)return pts;}pts.open=1;return pts;}
+const lines=[];for(let i=0;i<14;i++){const a=(i+.5)/14*2*Math.PI;lines.push(trace(P[0].x+10*Math.cos(a),P[0].y+10*Math.sin(a),1,P[1]));const l2=trace(P[1].x-10*Math.cos(a),P[1].y+10*Math.sin(a),-1,P[0]);if(l2.open)lines.push(l2);}
+const needles=[];for(let gx=45;gx<W;gx+=70)for(let gy=40;gy<H-50;gy+=64){if(Math.abs(gx-cx)<160&&Math.abs(gy-cy)<62)continue;const[bx,by]=B(gx,gy);needles.push([gx,gy,Math.atan2(by,bx)]);}
+function needle(X,Y,a,L,w){x.save();x.translate(X,Y);x.rotate(a);x.fillStyle='#8E3324';x.beginPath();x.moveTo(L,0);x.lineTo(0,-w);x.lineTo(0,w);x.closePath();x.fill();x.fillStyle='#8E8A80';x.beginPath();x.moveTo(-L,0);x.lineTo(0,-w);x.lineTo(0,w);x.closePath();x.fill();x.restore();}
+const path=lines[3];
+function draw(ts){const t=ts/1000;x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);
+ x.strokeStyle='rgba(31,111,120,.5)';x.lineWidth=2;for(const l of lines){x.beginPath();l.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke();}
+ for(const n of needles)needle(n[0],n[1],n[2],15,5);
+ x.fillStyle='#8E3324';x.fillRect(cx,cy-35,130,70);x.fillStyle='#1F6F78';x.fillRect(cx-130,cy-35,130,70);
+ x.fillStyle='#F3F1EC';x.font='bold 40px '+F;x.textAlign='center';x.textBaseline='middle';x.fillText('N',cx+65,cy+2);x.fillText('S',cx-65,cy+2);
+ const k=Math.floor((t*60)%path.length),p=path[k],[bx,by]=B(p[0],p[1]);
+ x.fillStyle='#F3F1EC';x.strokeStyle='#1D1D1B';x.lineWidth=3;x.beginPath();x.arc(p[0],p[1],26,0,7);x.fill();x.stroke();needle(p[0],p[1],Math.atan2(by,bx),21,6);
+ x.fillStyle='rgba(243,241,236,.92)';x.fillRect(0,570,W,50);x.textAlign='left';x.textBaseline='alphabetic';x.font='26px '+F;x.fillStyle='#1D1D1B';x.fillText('A compass needle lines up with B. Outside the magnet: N → S.',30,600);
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">05 / 31</p>
+<aside>Follow the moving compass in the animation: it always points along the line through its centre, so a field line is simply the path a compass would trace. Rule 4 is the deep one. Compare with electric field lines, which start on positive and end on negative charges. Magnetic field lines never end because there is no magnetic charge.</aside>
+</section>

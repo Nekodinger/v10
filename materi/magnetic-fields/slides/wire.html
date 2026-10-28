@@ -1,0 +1,43 @@
+<section id="wire" data-transition="fade" style="background:#1E1F1C;color:#F1EEE6;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #6F6C64;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#E9846E">§ 20.1 · Fields due to currents</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px;color:#F1EEE6">A long straight wire</h2>
+</div>
+<x-embed style="position:absolute;left:144px;top:310px;width:780px;height:572px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=660,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',cx=450,cy=320,R=[55,80,116,168,244];
+function draw(ts){const t=ts/1000,out=Math.floor(t/6)%2===0,s=out?-1:1;
+ x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);
+ R.forEach((r,i)=>{x.strokeStyle='#1F6F78';x.lineWidth=2.5;x.beginPath();x.arc(cx,cy,r,0,7);x.stroke();
+  const w=900/(r*r)*s;for(let k=0;k<4;k++){const a=t*w+k*Math.PI/2+i*0.6,X=cx+r*Math.cos(a),Y=cy+r*Math.sin(a);
+   x.save();x.translate(X,Y);x.rotate(a+s*Math.PI/2);x.fillStyle='#1F6F78';x.beginPath();x.moveTo(11,0);x.lineTo(-8,-8);x.lineTo(-8,8);x.closePath();x.fill();x.restore();}});
+ x.fillStyle='#F3F1EC';x.strokeStyle='#B8391F';x.lineWidth=5;x.beginPath();x.arc(cx,cy,26,0,7);x.fill();x.stroke();
+ x.fillStyle='#B8391F';x.strokeStyle='#B8391F';
+ if(out){x.beginPath();x.arc(cx,cy,7,0,7);x.fill();}else{x.lineWidth=5;x.beginPath();x.moveTo(cx-13,cy-13);x.lineTo(cx+13,cy+13);x.moveTo(cx+13,cy-13);x.lineTo(cx-13,cy+13);x.stroke();}
+ x.font='bold 28px '+F;x.textAlign='left';x.textBaseline='alphabetic';x.fillStyle='#B8391F';
+ x.fillText(out?'I out of the page  ( • )':'I into the page  ( × )',24,44);
+ x.fillStyle='#1F6F78';x.fillText(out?'B anticlockwise':'B clockwise',24,84);
+ x.font='26px '+F;x.fillStyle='#4A4842';x.fillText('Rings spread out with distance: B ∝ 1/r',24,640);
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<div style="position:absolute;left:1000px;top:310px;width:776px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#BDB8AC">THE RIGHT-HAND GRIP RULE</p>
+<p style="font-family:'Newsreader', Georgia, serif;font-size:40px;line-height:1.3;color:#F1EEE6">Thumb along the <span style="color:#E9846E">conventional current</span>; the curled fingers give the <span style="color:#7FB5BA">direction of B</span>.</p>
+</div>
+<table style="font-size:26px;color:#F1EEE6">
+<tr><th style="width:38%">Feature</th><th style="width:62%">Observation</th></tr>
+<tr><td>Shape</td><td>concentric circles in planes at 90° to the wire</td></tr>
+<tr><td>Distance</td><td>field weaker further away</td></tr>
+<tr><td>Current reversed</td><td>field reversed</td></tr>
+<tr><td>Larger current</td><td>stronger field</td></tr>
+</table>
+</div>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #4A4842"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#9A958A">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#9A958A;text-align:right">08 / 31</p>
+<aside>The animation switches the current direction every six seconds. Ask students to predict the circulation before it flips, using the grip rule with their own right hand. The rings are spaced so that their density falls as 1/r; Meeting 3 turns this into B = μ0 I / (2πr). Note the arrows also move more slowly further out, another cue that B is weaker there.</aside>
+</section>

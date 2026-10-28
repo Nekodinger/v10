@@ -1,0 +1,47 @@
+<section id="balance" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.2 · Measuring B with a current balance</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Weighing a magnetic force</h2>
+</div>
+<table style="width:740px;font-size:25px;color:#1D1D1B">
+<tr><th style="width:14%">Step</th><th style="width:86%">Procedure</th></tr>
+<tr><td>1</td><td>Stand a U-shaped magnet on a top-pan balance; zero the reading.</td></tr>
+<tr><td>2</td><td>Clamp a stiff wire between the poles, at 90° to B, not touching the magnet.</td></tr>
+<tr><td>3</td><td>Pass a current I and record the new reading.</td></tr>
+<tr><td>4</td><td>Wire pushed up, so the magnet is pushed down (Newton’s third law): the reading rises by Δm.</td></tr>
+<tr><td>5</td><td>Repeat for several currents, and with the current reversed.</td></tr>
+</table>
+<x-embed style="position:absolute;left:936px;top:305px;width:840px;height:597px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=640,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',B=0.060,L=0.050,g=9.81,m0=120.00,wx=250,wy=300;
+function tri(X,Y,a,s,col){x.save();x.translate(X,Y);x.rotate(a);x.fillStyle=col;x.beginPath();x.moveTo(10*s,0);x.lineTo(-8*s,-8*s);x.lineTo(-8*s,8*s);x.closePath();x.fill();x.restore();}
+function draw(ts){const t=(ts/1000)%12,I=Math.min(4,Math.floor(t/2)),Fw=B*I*L,dm=Fw/g*1000;
+ x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);
+ x.fillStyle='#8E8A80';x.fillRect(500,60,14,420);x.fillRect(250,60,264,12);x.fillRect(244,60,12,215);
+ x.fillStyle='#4A4842';x.fillRect(60,470,380,90);x.fillStyle='#1D1D1B';x.fillRect(150,490,200,52);
+ x.fillStyle='#7CE0B0';x.font='bold 34px "Courier New", monospace';x.textAlign='center';x.textBaseline='middle';x.fillText((m0+dm).toFixed(2)+' g',250,517);
+ x.fillStyle='#8E8A80';x.fillRect(90,452,320,18);
+ x.fillStyle='#55524B';x.fillRect(120,400,260,52);x.fillStyle='#8E3324';x.fillRect(120,230,80,170);x.fillStyle='#1F6F78';x.fillRect(300,230,80,170);
+ x.fillStyle='#F3F1EC';x.font='bold 36px '+F;x.fillText('N',160,320);x.fillText('S',340,320);
+ x.strokeStyle='rgba(31,111,120,.7)';x.lineWidth=2;for(const y of[255,285,345,375]){x.beginPath();x.moveTo(204,y);x.lineTo(296,y);x.stroke();tri(285,y,0,.8,'rgba(31,111,120,.9)');}
+ x.fillStyle='#F3F1EC';x.strokeStyle='#B8391F';x.lineWidth=5;x.beginPath();x.arc(wx,wy+15,16,0,7);x.fill();x.stroke();x.fillStyle='#B8391F';x.beginPath();x.arc(wx,wy+15,5,0,7);x.fill();
+ if(I>0){const h=18*I;x.fillStyle='#B8391F';x.fillRect(wx-5,wy-h-8,10,h);tri(wx,wy-h-14,-Math.PI/2,1.2,'#B8391F');
+  x.fillStyle='#1F6F78';x.fillRect(95,250,10,h);tri(100,250+h+8,Math.PI/2,1.2,'#1F6F78');}
+ x.font='24px '+F;x.textAlign='left';x.fillStyle='#B8391F';x.fillText('F on wire (up)',268,170);x.fillStyle='#1F6F78';x.fillText('F on',20,150);x.fillText('magnet',20,178);x.fillText('(down)',20,206);
+ x.fillStyle='#1D1D1B';x.font='bold 30px '+F;x.fillText('I = '+I.toFixed(1)+' A',40,40);x.font='24px '+F;x.fillText('wire length in field L = 5.0 cm',40,600);
+ const g0=560,g1=860,gy0=420,gy1=150;x.strokeStyle='#1D1D1B';x.lineWidth=2;x.beginPath();x.moveTo(g0,gy1-10);x.lineTo(g0,gy0);x.lineTo(g1+10,gy0);x.stroke();
+ x.font='24px '+F;x.fillStyle='#1D1D1B';x.textAlign='center';for(let i=0;i<=4;i++)x.fillText(i,g0+i*70,gy0+30);x.fillText('I / A',g0+150,gy0+62);
+ x.textAlign='left';x.fillText('F = Δm g / mN',g0+6,gy1-28);
+ x.strokeStyle='rgba(184,57,31,.5)';x.setLineDash([6,6]);x.beginPath();x.moveTo(g0,gy0);x.lineTo(g0+280,gy0-280*0.75);x.stroke();x.setLineDash([]);
+ for(let i=0;i<=I;i++){x.fillStyle='#B8391F';x.beginPath();x.arc(g0+i*70,gy0-i*3.0*17.5,8,0,7);x.fill();}
+ x.fillStyle='#1D1D1B';x.font='bold 26px '+F;x.fillText('gradient = BL',g0+10,520);x.font='24px '+F;x.fillText('Δm = '+dm.toFixed(3)+' g',g0+10,560);x.fillText('F = '+(Fw*1000).toFixed(2)+' mN',g0+10,594);
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">18 / 31</p>
+<aside>The animation uses B = 0.060 T and L = 5.0 cm, so each extra ampere adds 3.0 mN, about 0.31 g, to the reading. The wire is seen end-on with the current coming out of the page; the field points from N to S, so by the left-hand rule the force on the wire is upwards. This is the same Current Balance practical used in LKPD 2. If the reading falls instead of rising, the force on the wire is downwards: reverse the current or turn the magnet round.</aside>
+</section>

@@ -1,0 +1,44 @@
+<section id="origin" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.1 · Origin of magnetic fields</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Every magnetic field comes from moving charge</h2>
+</div>
+<x-embed style="position:absolute;left:144px;top:330px;width:940px;height:460px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=440,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',cy=230,rings=[220,450,680];
+function ring(cx,half,t){const rx=26,ry=110;x.lineWidth=3;x.strokeStyle='#1F6F78';x.beginPath();
+ for(let i=0;i<=60;i++){const p=(half?0:Math.PI)+i/60*Math.PI;const X=cx+rx*Math.sin(p),Y=cy-ry*Math.cos(p);i?x.lineTo(X,Y):x.moveTo(X,Y);}x.stroke();
+ for(let k=0;k<2;k++){const p=((t*0.9+k*Math.PI)%(2*Math.PI));const front=p<Math.PI;if(front!==half)continue;
+  const X=cx+rx*Math.sin(p),Y=cy-ry*Math.cos(p),dx=rx*Math.cos(p),dy=ry*Math.sin(p),a=Math.atan2(dy,dx);
+  x.save();x.translate(X,Y);x.rotate(a);x.fillStyle='#1F6F78';x.beginPath();x.moveTo(12,0);x.lineTo(-10,-9);x.lineTo(-10,9);x.closePath();x.fill();x.restore();}}
+function draw(ts){const t=ts/1000;x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);
+ rings.forEach(r=>ring(r,false,t));
+ const g=x.createLinearGradient(0,cy-14,0,cy+14);g.addColorStop(0,'#E0907E');g.addColorStop(.5,'#B8391F');g.addColorStop(1,'#7E2A18');
+ x.fillStyle=g;x.fillRect(40,cy-14,820,28);
+ for(let i=0;i<16;i++){const X=40+((i*51.25+t*70)%820);x.fillStyle='#F3F1EC';x.beginPath();x.arc(X,cy,8,0,7);x.fill();x.fillStyle='#B8391F';x.font='bold 14px '+F;x.textAlign='center';x.textBaseline='middle';x.fillText('+',X,cy+1);}
+ rings.forEach(r=>ring(r,true,t));
+ x.fillStyle='#B8391F';x.beginPath();x.moveTo(880,cy);x.lineTo(856,cy-16);x.lineTo(856,cy+16);x.closePath();x.fill();
+ x.textAlign='left';x.textBaseline='alphabetic';x.font='26px '+F;x.fillStyle='#B8391F';x.fillText('moving charges (current I)',40,400);
+ x.fillStyle='#1F6F78';x.fillText('closed loops of B around the path',470,400);
+ x.font='26px '+F;x.fillStyle='#4A4842';x.fillText('At rest: E-field only.   In motion: B-field as well.',40,50);
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<p style="position:absolute;left:144px;top:808px;width:940px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Fig. 1  Conventional current and the loops of B around it</p>
+<div style="position:absolute;left:1148px;top:330px;width:628px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #1D1D1B;padding:20px 0px 0px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">01 · CURRENTS</p>
+<p style="font-family:'Newsreader', Georgia, serif;font-size:32px;line-height:1.35;color:#1D1D1B">Charge carriers drift along a wire. The field forms closed loops around the current.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #1D1D1B;padding:20px 0px 0px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#1F6F78">02 · PERMANENT MAGNETS</p>
+<p style="font-family:'Newsreader', Georgia, serif;font-size:32px;line-height:1.35;color:#1D1D1B">Electron spin and orbital motion act as tiny current loops. In iron they line up in domains and their fields add.</p>
+</div>
+</div>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">04 / 31</p>
+<aside>The animation shows positive (conventional) charge carriers moving to the right and loops of B around the wire. Point out that the loops have no start or end: magnetic field lines always form closed loops, which is why there are no isolated magnetic poles. Electron spin is a quantum property; at this level it is enough to treat each electron as a tiny current loop.</aside>
+</section>

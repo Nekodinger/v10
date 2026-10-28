@@ -1,0 +1,47 @@
+<section id="parallel" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.4 · Forces between currents</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Two parallel wires</h2>
+</div>
+<div style="position:absolute;left:1040px;top:310px;width:736px;display:flex;flex-direction:column;gap:30px">
+<p style="font-family:'Newsreader', Georgia, serif;font-size:36px;line-height:1.3;color:#1D1D1B">Each wire sits in the magnetic field of the other, so each feels a force <i>F</i> = <i>BIL</i>.</p>
+<div style="display:flex;border-top:1px solid #1D1D1B;border-bottom:1px solid #1D1D1B">
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:20px 20px 20px 0px;border-right:1px solid #1D1D1B"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">LIKE CURRENTS</p><p style="font-family:'Newsreader', Georgia, serif;font-size:44px;color:#B8391F">attract</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:20px 0px 20px 28px"><p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">UNLIKE CURRENTS</p><p style="font-family:'Newsreader', Georgia, serif;font-size:44px;color:#1F6F78">repel</p></div>
+</div>
+<p style="font-size:25px;line-height:1.5;color:#4A4842">For like currents the field lines wrap round both wires and draw them together; for unlike currents they crowd between the wires and push them apart. This is the reverse of charges and poles.</p>
+</div>
+<x-embed style="position:absolute;left:144px;top:305px;width:840px;height:597px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=640,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',cy=310,A={x:310,y:cy},Bw={x:590,y:cy};
+function Bf(Wr,px,py){let bx=0,by=0;for(const w of Wr){const dx=px-w.x,dy=py-w.y,r2=dx*dx+dy*dy+1;bx+=w.I*dy/r2;by+=-w.I*dx/r2;}return[bx,by];}
+function trace(Wr,sx,sy){const p=[[sx,sy]];let X=sx,Y=sy;for(let i=0;i<5000;i++){let[a,b]=Bf(Wr,X,Y),m=Math.hypot(a,b);if(m<1e-9)break;const mx=X+a/m,my=Y+b/m;[a,b]=Bf(Wr,mx,my);m=Math.hypot(a,b);X+=2*a/m;Y+=2*b/m;p.push([X,Y]);if(i>60&&Math.hypot(X-sx,Y-sy)<2.2)break;if(X<-200||X>W+200||Y<-200||Y>H+200)break;}return p;}
+function build(I2){const Wr=[{x:A.x,y:cy,I:1},{x:Bw.x,y:cy,I:I2}],L=[];
+ const seeds=I2>0?[A.x-30,A.x-55,A.x-90,A.x+30,A.x+60,Bw.x-30,Bw.x-60,Bw.x+30,Bw.x+55,Bw.x+90,120,60,20]:[A.x-30,A.x-60,A.x-100,A.x-160,A.x+30,A.x+60,A.x+100];
+ for(const s of seeds){const l=trace(Wr,s,cy);L.push(l);if(I2<0){L.push(l.map(q=>[W-q[0],q[1]]));}}return L;}
+const same=build(1),opp=build(-1);
+function tri(X,Y,a,s,col){x.save();x.translate(X,Y);x.rotate(a);x.fillStyle=col;x.beginPath();x.moveTo(10*s,0);x.lineTo(-8*s,-8*s);x.lineTo(-8*s,8*s);x.closePath();x.fill();x.restore();}
+function wire(w,I){x.fillStyle='#F3F1EC';x.strokeStyle='#B8391F';x.lineWidth=5;x.beginPath();x.arc(w.x,w.y,20,0,7);x.fill();x.stroke();x.fillStyle='#B8391F';x.strokeStyle='#B8391F';
+ if(I>0){x.beginPath();x.arc(w.x,w.y,6,0,7);x.fill();}else{x.beginPath();x.moveTo(w.x-10,w.y-10);x.lineTo(w.x+10,w.y+10);x.moveTo(w.x+10,w.y-10);x.lineTo(w.x-10,w.y+10);x.stroke();}}
+function arrowV(X,Y,dx,dy,col){x.strokeStyle=col;x.lineWidth=8;x.beginPath();x.moveTo(X,Y);x.lineTo(X+dx,Y+dy);x.stroke();tri(X+dx,Y+dy,Math.atan2(dy,dx),1.4,col);}
+function draw(ts){const t=(ts/1000)%16,s=t<8,L=s?same:opp,p=0.6+0.4*Math.sin(ts/300);
+ x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);x.strokeStyle='rgba(31,111,120,.55)';x.lineWidth=2;
+ for(const l of L){x.beginPath();l.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke();}
+ wire(A,1);wire(Bw,s?1:-1);
+ arrowV(Bw.x+40,cy,0,-90,'#1F6F78');arrowV(A.x-40,cy,0,s?90:-90,'#1F6F78');
+ const f=70*p;arrowV(Bw.x+(s?-28:28),cy+60,s?-f:f,0,'#B8391F');arrowV(A.x+(s?28:-28),cy+60,s?f:-f,0,'#B8391F');
+ x.font='26px '+F;x.textAlign='left';x.fillStyle='#1F6F78';x.fillText('B₁ at wire 2',Bw.x+58,cy-70);x.fillText('B₂ at wire 1',A.x-210,cy+(s?95:-70));
+ x.fillStyle='#B8391F';x.font='bold 26px '+F;x.fillText('F',Bw.x+(s?-80:110),cy+105);x.fillText('F',A.x+(s?70:-100),cy+105);
+ x.fillStyle='#1D1D1B';x.font='bold 30px '+F;x.fillText(s?'Currents in the SAME direction: wires ATTRACT':'Currents in OPPOSITE directions: wires REPEL',24,44);
+ x.font='26px '+F;x.fillText('wire 1',A.x-38,cy+170);x.fillText('wire 2',Bw.x-38,cy+170);
+ x.fillStyle='rgba(243,241,236,.92)';x.fillRect(0,588,W,52);x.fillStyle='#4A4842';x.fillText('Each wire feels F = BIL in the field of the other wire.',24,622);
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">24 / 31</p>
+<aside>The animation shows a top view with both wires perpendicular to the page and alternates between like and unlike currents every eight seconds. Teal arrows show the field each wire produces at the other; red arrows show the forces. The field lines are calculated from the two currents, not sketched. The next slide works through the direction argument step by step.</aside>
+</section>

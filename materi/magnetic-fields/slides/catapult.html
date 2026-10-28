@@ -1,0 +1,38 @@
+<section id="catapult" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.2 · The motor effect</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">Why the wire moves</h2>
+</div>
+<div style="position:absolute;left:1040px;top:310px;width:736px;display:flex;flex-direction:column;gap:28px">
+<p style="font-family:'Newsreader', Georgia, serif;font-size:36px;line-height:1.3;color:#1D1D1B">A current-carrying conductor in a magnetic field, <i>not parallel to it</i>, experiences a force.</p>
+<ol style="font-size:26px;line-height:1.5;color:#4A4842"><li>The magnet gives a uniform field.</li><li>The current gives circular field lines round the wire.</li><li>The fields add on one side and partly cancel on the other.</li><li>The wire is pushed from the strong side to the weak side.</li></ol>
+<p style="font-size:26px;line-height:1.45;color:#1D1D1B;border-top:1px solid #1D1D1B;padding:18px 0px 0px 0px">The force is at right angles to <b>both</b> the current and the field.</p>
+</div>
+<x-embed style="position:absolute;left:144px;top:305px;width:840px;height:597px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=900,H=640,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+addEventListener('resize',fit);fit();
+const F='Arial, Helvetica, sans-serif',L=70,R=830,cx=450,cy=300,K=-85;
+function Bw(px,py){const dx=px-cx,dy=py-cy,r2=dx*dx+dy*dy+4;return[K*dy/r2,-K*dx/r2];}
+function trace(sx,sy){const p=[[sx,sy]];let X=sx,Y=sy;for(let i=0;i<900;i++){let[a,b]=Bw(X,Y);a+=1;const m=Math.hypot(a,b);if(m<0.02)break;const mx=X+a/m,my=Y+b/m;let[a2,b2]=Bw(mx,my);a2+=1;const m2=Math.hypot(a2,b2);X+=2*a2/m2;Y+=2*b2/m2;p.push([X,Y]);if(X>R||Y<0||Y>590||Math.hypot(X-cx,Y-cy)<20)break;}return p;}
+const comb=[];for(let y=24;y<590;y+=34)comb.push(trace(L,y));
+function tri(X,Y,a,s=1){x.save();x.translate(X,Y);x.rotate(a);x.beginPath();x.moveTo(10*s,0);x.lineTo(-8*s,-8*s);x.lineTo(-8*s,8*s);x.closePath();x.fill();x.restore();}
+function poles(){x.fillStyle='#8E3324';x.fillRect(0,0,L,590);x.fillStyle='#1F6F78';x.fillRect(R,0,W-R,590);x.fillStyle='#F3F1EC';x.font='bold 40px '+F;x.textAlign='center';x.textBaseline='middle';x.fillText('N',L/2,295);x.fillText('S',R+35,295);}
+function wire(dy){x.fillStyle='#F3F1EC';x.strokeStyle='#B8391F';x.lineWidth=5;x.beginPath();x.arc(cx,cy+dy,22,0,7);x.fill();x.stroke();x.beginPath();x.moveTo(cx-11,cy+dy-11);x.lineTo(cx+11,cy+dy+11);x.moveTo(cx+11,cy+dy-11);x.lineTo(cx-11,cy+dy+11);x.stroke();}
+function cap(t){x.fillStyle='#1D1D1B';x.font='26px '+F;x.textAlign='left';x.textBaseline='alphabetic';x.fillText(t,20,626);}
+function draw(ts){const t=(ts/1000)%14;x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);x.strokeStyle='#1F6F78';x.fillStyle='#1F6F78';x.lineWidth=2.2;
+ if(t<3.5){for(let y=24;y<590;y+=34){x.beginPath();x.moveTo(L,y);x.lineTo(R,y);x.stroke();tri(450+((t*60)%120)-60,y,0);}poles();cap('1. Uniform field of the magnet (N → S)');}
+ else if(t<7){for(const r of[45,75,115,170]){x.beginPath();x.arc(cx,cy,r,0,7);x.stroke();const a=(t*1.2)+r;tri(cx+r*Math.cos(a),cy+r*Math.sin(a),a+Math.PI/2);}poles();wire(0);cap('2. Field of the wire alone: I into the page, B clockwise');}
+ else{for(const l of comb){x.beginPath();l.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke();const k=Math.floor(l.length*0.15);if(l[k+1])tri(l[k][0],l[k][1],Math.atan2(l[k+1][1]-l[k][1],l[k+1][0]-l[k][0]));}
+  poles();const dy=Math.min(40,(t-7)*14);wire(dy);x.fillStyle='#B8391F';x.fillRect(cx-6,cy+dy+30,12,70);tri(cx,cy+dy+108,Math.PI/2,1.6);
+  x.font='bold 28px '+F;x.textAlign='left';x.fillText('F',cx+22,cy+dy+100);
+  x.font='bold 24px '+F;for(const[t,yy]of[['fields add: stronger B',cy-150],['fields cancel: weaker B',cy+190]]){const w=x.measureText(t).width;x.fillStyle='rgba(243,241,236,.92)';x.fillRect(cx+90,yy-26,w+16,36);x.fillStyle='#1D1D1B';x.fillText(t,cx+98,yy);}
+  cap('3. Combined ("catapult") field: the wire is pushed towards the weaker side');}
+ requestAnimationFrame(draw);}
+requestAnimationFrame(draw);
+</script></x-embed>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">12 / 31</p>
+<aside>The animation runs in three stages: the magnet’s field, the wire’s field, then their sum. Above the wire the two fields point the same way and add; below they point in opposite directions and partly cancel, with a neutral point just below the wire. Field lines act like stretched elastic bands that try to straighten, so they "catapult" the wire downwards. This is a model; the force itself comes from the field acting on the moving charges inside the wire, which we derive on slide 16.</aside>
+</section>

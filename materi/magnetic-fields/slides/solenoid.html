@@ -1,0 +1,43 @@
+<section id="solenoid" data-transition="fade" style="background:#F3F1EC;color:#1D1D1B;font-family:'Public Sans', Arial, sans-serif;padding:120px 144px 168px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px;border-bottom:1px solid #1D1D1B;padding:0px 0px 24px 0px">
+<p style="font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;letter-spacing:1px;color:#B8391F">§ 20.1 · Fields due to currents</p>
+<h2 style="font-family:'Newsreader', Georgia, serif;font-size:68px;font-weight:500;line-height:1.05;letter-spacing:-1px">A flat coil and a long solenoid</h2>
+</div>
+<x-embed style="position:absolute;left:144px;top:310px;width:1632px;height:549px"><style>html,body{margin:0;background:#F3F1EC;overflow:hidden}canvas{display:block}</style><canvas id="c"></canvas><script>
+const W=1664,H=560,c=document.getElementById('c'),x=c.getContext('2d');
+function fit(){const w=innerWidth,s=w/W,d=devicePixelRatio||1;c.width=w*d;c.height=w*H/W*d;c.style.width=w+'px';c.style.height=w*H/W+'px';x.setTransform(s*d,0,0,s*d,0,0);}
+const F='Arial, Helvetica, sans-serif',PW=831,PH=490,cx=415,cy=240;
+function B(Wr,px,py){let bx=0,by=0;for(const w of Wr){const dx=px-w.x,dy=py-w.y,r2=dx*dx+dy*dy+1;bx+=w.I*dy/r2;by+=-w.I*dx/r2;}return[bx,by];}
+function trace(Wr,sx,sy,d){const pts=[[sx,sy]];let X=sx,Y=sy;for(let i=0;i<2600;i++){let[bx,by]=B(Wr,X,Y),m=Math.hypot(bx,by)*d;const MX=X+bx/m,MY=Y+by/m;[bx,by]=B(Wr,MX,MY);m=Math.hypot(bx,by)*d;X+=2*bx/m;Y+=2*by/m;pts.push([X,Y]);if(X<-5||X>PW+5||Y<-5||Y>PH+5)break;if(i>40&&Math.hypot(X-sx,Y-sy)<2.5){pts.closed=1;break;}if(Wr.some(w=>Math.hypot(X-w.x,Y-w.y)<6))break;}return pts;}
+function arrowAt(l,f){const k=Math.floor(l.length*f);if(k<2||k>=l.length-1)return;const A=l[k],Bq=l[k+1],a=Math.atan2(Bq[1]-A[1],Bq[0]-A[0]);x.save();x.translate(A[0],A[1]);x.rotate(a);x.beginPath();x.moveTo(9,0);x.lineTo(-7,-7);x.lineTo(-7,7);x.closePath();x.fill();x.restore();}
+function stroke(l){x.beginPath();l.forEach((q,j)=>j?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.stroke();}
+function wire(w){x.fillStyle='#F3F1EC';x.strokeStyle='#B8391F';x.lineWidth=3;x.beginPath();x.arc(w.x,w.y,12,0,7);x.fill();x.stroke();x.fillStyle='#B8391F';
+ if(w.I>0){x.beginPath();x.arc(w.x,w.y,4,0,7);x.fill();}else{x.beginPath();x.moveTo(w.x-6,w.y-6);x.lineTo(w.x+6,w.y+6);x.moveTo(w.x+6,w.y-6);x.lineTo(w.x-6,w.y+6);x.stroke();}}
+function panel(Wr,seeds,ox,title,labels){x.save();x.translate(ox,0);x.beginPath();x.rect(0,0,PW,PH);x.clip();
+ x.strokeStyle='#1F6F78';x.fillStyle='#1F6F78';x.lineWidth=2;
+ for(const[sx,sy]of seeds){const f=trace(Wr,sx,sy,1);if(f.closed){stroke(f);arrowAt(f,0.02);arrowAt(f,0.5);}else{const b=trace(Wr,sx,sy,-1);stroke(f);stroke(b);arrowAt(f,0.35);x.save();arrowAt(b.slice().reverse(),0.6);x.restore();}}
+ Wr.forEach(wire);x.font='bold 30px '+F;x.textAlign='center';x.textBaseline='middle';for(const[t,X,Y,col]of labels){x.fillStyle=col;x.fillText(t,X,Y);}
+ x.restore();x.strokeStyle='#CFCAC0';x.lineWidth=2;x.strokeRect(ox+1,1,PW-2,PH-2);x.fillStyle='#1D1D1B';x.font='26px '+F;x.textAlign='center';x.textBaseline='alphabetic';x.fillText(title,ox+PW/2,H-18);}
+function coilPanel(){const a=90;x.save();x.beginPath();x.rect(0,0,PW,PH);x.clip();x.strokeStyle='#1F6F78';x.fillStyle='#1F6F78';x.lineWidth=2;
+ x.beginPath();x.moveTo(cx,PH);x.lineTo(cx,0);x.stroke();
+ const tri=(X,Y,a)=>{x.save();x.translate(X,Y);x.rotate(a);x.beginPath();x.moveTo(9,0);x.lineTo(-7,-7);x.lineTo(-7,7);x.closePath();x.fill();x.restore();};
+ tri(cx,120,-Math.PI/2);tri(cx,380,-Math.PI/2);
+ for(const x0 of [10,24,40,58]){const C=(x0*x0+a*a)/(2*x0),r=Math.sqrt(C*C-a*a);
+  for(const sg of[1,-1]){const X=cx+sg*C;x.beginPath();x.arc(X,cy,r,0,7);x.stroke();
+   tri(X,cy-r,sg>0?0:Math.PI);tri(X,cy+r,sg>0?Math.PI:0);}}
+ [{x:cx-a,y:cy,I:1},{x:cx+a,y:cy,I:-1}].forEach(wire);
+ x.font='bold 30px '+F;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#8E3324';x.fillText('N',cx+30,40);x.fillStyle='#1F6F78';x.fillText('S',cx+30,450);
+ x.restore();x.strokeStyle='#CFCAC0';x.lineWidth=2;x.strokeRect(1,1,PW-2,PH-2);x.fillStyle='#1D1D1B';x.font='26px '+F;x.textAlign='center';x.textBaseline='alphabetic';x.fillText('Flat circular coil (cut through its centre)',PW/2,H-18);}
+function draw(){fit();x.fillStyle='#F3F1EC';x.fillRect(0,0,W,H);
+ coilPanel();
+ const sol=[];for(let X=cx-200;X<=cx+200;X+=40){sol.push({x:X,y:cy-60,I:-1});sol.push({x:X,y:cy+60,I:1});}
+ const s2=[];for(let Y=cy-36;Y<=cy+36;Y+=12)s2.push([cx,Y]);
+ panel(sol,s2,PW+2,'Long solenoid: uniform field inside',[['N',cx-250,cy,'#8E3324'],['S',cx+250,cy,'#1F6F78']]);}
+addEventListener('resize',draw);draw();
+</script></x-embed>
+<p style="position:absolute;left:144px;top:876px;width:1632px;font-size:26px;line-height:1.4;color:#4A4842">Inside a long solenoid B is <b style="color:#1D1D1B">uniform and along the axis</b>; outside it resembles a bar magnet. A <b style="color:#1D1D1B">ferrous (iron) core</b> makes B much stronger.</p>
+<div style="position:absolute;left:144px;top:960px;width:1632px;height:0px;border-top:1px solid #BDB8AC"></div>
+<p style="position:absolute;left:144px;bottom:64px;width:1000px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64">Magnetic fields · 9702</p>
+<p style="position:absolute;right:144px;bottom:64px;width:300px;font-family:'IBM Plex Mono', 'Courier New', monospace;font-size:24px;color:#6F6C64;text-align:right">09 / 31</p>
+<aside>Both diagrams are cross-sections: each turn of wire cuts the page twice, once with current coming out (dot) and once going in (cross). Apply the grip rule to each wire and the fields add up inside. Pole rule: look at one end of the solenoid; if the current flows anticlockwise that end is N, clockwise is S. The iron core works because its domains line up with the solenoid field and add their own field, typically hundreds of times larger. Real solenoids are 3D, so the outside field spreads more than this 2D model shows.</aside>
+</section>
