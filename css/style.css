@@ -3,7 +3,7 @@
    Bahasa visual mengikuti template "Eduleb - Education HTML Template"
    (Copyright (c) Bestwpware, lisensi MIT, didistribusikan ThemeWagon):
    latar putih dengan gradasi pastel lembut, aksen indigo #525FE1 dan
-   koral #F26B65, judul navy #0B104A, tipografi Space Grotesk (judul) + Inter
+   koral #F26B65, judul navy #0B104A, tipografi Grandstander (judul, brand, label) + Inter
    (isi), di-host sendiri, kartu membulat dengan bayangan halus, ikon dalam lingkaran
    berwarna lembut.
    ============================================================ */
@@ -61,7 +61,7 @@
   --border: var(--line-2);
   --danger: var(--coral);
 
-  --head: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --head: "Grandstander", "Segoe UI", system-ui, sans-serif;
   --sans: "Inter", "Segoe UI", system-ui, sans-serif;
   --serif: var(--head);
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
