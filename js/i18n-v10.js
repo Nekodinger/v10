@@ -3,6 +3,8 @@
    Tes Sumatif). Dimuat SETELAH js/i18n.js dan js/i18n-v9.js.
    ============================================================ */
 Object.assign(I18N_STRINGS, {
+  "hero.slides.aria": { id: "Maskot Emergent mengetik, merangkai rangkaian, dan menulis rumus fisika", en: "The Emergent mascot typing, building a circuit and writing physics formulas" },
+
   /* ---------- tab Panel Guru ---------- */
   "teacher.tab.session": { id: "Class Management", en: "Class Management" },
   "teacher.tab.accounts": { id: "Group Management", en: "Group Management" },

@@ -1151,3 +1151,15 @@ body.ts-open { overflow: hidden; }
   .ts-scroll { overflow: visible; padding: 0; }
   .ts-paper { box-shadow: none; padding: 0; }
 }
+
+/* ---------- V10: slideshow maskot di beranda (transisi halus + efek Ken Burns) ---------- */
+.hero-slides { position: relative; width: min(560px, 100%); aspect-ratio: 4 / 3; border-radius: 32px; overflow: hidden; box-shadow: 0 28px 60px rgba(11, 16, 74, .18); background: #2A1C14; isolation: isolate; }
+.hero-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; opacity: 0; transform: scale(1.08); transition: opacity 1.4s ease, transform 7s linear; will-change: opacity, transform; }
+.hero-slide.is-on { opacity: 1; transform: scale(1); z-index: 1; }
+.hero-slide.is-on.pan-l { transform: scale(1.02) translateX(-1.5%); }
+.hero-slide.is-on.pan-r { transform: scale(1.02) translateX(1.5%); }
+.hero-dots { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; display: flex; gap: 6px; padding: 6px 9px; border-radius: 30px; background: rgba(11, 16, 74, .35); backdrop-filter: blur(6px); }
+.hero-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, .55); transition: width .4s, background .4s; }
+.hero-dots span.on { width: 20px; border-radius: 6px; background: #fff; }
+@media (max-width: 860px) { .hero-slides { width: 100%; border-radius: 24px; } }
+@media (prefers-reduced-motion: reduce) { .hero-slide { transition: opacity .01s; transform: none !important; } }

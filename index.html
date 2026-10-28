@@ -209,7 +209,12 @@
         </div>
         <figure class="hero-figure">
           <span class="hero-blob" aria-hidden="true"></span>
-          <img src="assets/hero-3d.webp" alt="" class="hero-mascot" width="960" height="960">
+          <div class="hero-slides" id="hero-slides" role="img" data-i18n-aria="hero.slides.aria" aria-label="Maskot Emergent mengetik, merangkai rangkaian, dan menulis rumus fisika">
+            <img class="hero-slide is-on" src="assets/hero-scene-1-1280.webp" srcset="assets/hero-scene-1-720.webp 720w, assets/hero-scene-1-1280.webp 1280w" sizes="(max-width: 860px) 92vw, 46vw" alt="" width="1280" height="720">
+            <img class="hero-slide" src="assets/hero-scene-2-1280.webp" srcset="assets/hero-scene-2-720.webp 720w, assets/hero-scene-2-1280.webp 1280w" sizes="(max-width: 860px) 92vw, 46vw" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <img class="hero-slide" src="assets/hero-scene-3-1280.webp" srcset="assets/hero-scene-3-720.webp 720w, assets/hero-scene-3-1280.webp 1280w" sizes="(max-width: 860px) 92vw, 46vw" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <div class="hero-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+          </div>
           <div class="float-card fc-1"><span class="gi gi-coral" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20.2 7.4v9.2L12 21.2l-8.2-4.6V7.4z"/><path d="M12 12l8.2-4.6M12 12v9.2M12 12 3.8 7.4"/></svg></span><div><b data-i18n="hero.float1.k">Makerspace</b><small data-i18n="hero.float1.v">Simulasi buatanmu</small></div></div>
           <div class="float-card fc-2"><span class="gi gi-indigo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4v7.2a3 3 0 0 0 6 0V4h4v7.2a7 7 0 0 1-14 0z"/><path d="M5 8h4M15 8h4"/></svg></span><div><b>F = BIL</b><small data-i18n="hero.float2.v">LKPD neraca arus</small></div></div>
         </figure>
@@ -528,5 +533,6 @@
 <script src="js/app.js"></script>
 <script src="js/sumatif-render.js"></script>
 <script src="js/sumatif-student.js"></script>
+<script src="js/hero-slides.js"></script>
 </body>
 </html>
