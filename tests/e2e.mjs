@@ -95,6 +95,7 @@ async function joinClassAtGate(p, code) {
   await p.fill("#gate-student-code-input", code);
   await p.click("#gate-student-code-btn");
 }
+const tabDone = (p, tab) => p.evaluate(t => document.querySelector(`.tab-btn[data-tab="${t}"]`).classList.contains("done") && getComputedStyle(document.querySelector(`.tab-btn[data-tab="${t}"] .tab-done`)).display !== "none", tab);
 let classCode = null;
 async function passMateri(p) {
   // Dalam sesi kelas guru langsung membawa siswa ke topik (tanpa layar sambutan)
@@ -163,6 +164,14 @@ await step("Materi gate: fail keeps modal open, pass unlocks Eksperimen", async 
   for (let i = 0; i < n; i++) await pg.check(`#confirm-modal input[name="cq-${i}"][value="${corr[i]}"]`);
   await pg.click("#confirm-modal-submit-btn");
   await pg.waitForSelector("#panel-eksperimen.active .lkpd");
+  // V11: tidak ada lagi progress bar; status selesai tampil di tab, tombol lanjut di bawah konten
+  assert.equal(await pg.locator("#progress-steps, .progress-step").count(), 0, "old progress bar removed");
+  assert.ok(await tabDone(pg, "materi"), "Materi shows the green done mark");
+  assert.ok(!(await tabDone(pg, "eksperimen")), "Eksperimen not done yet");
+  const order = await pg.evaluate(() => document.querySelector(".tab-panels").compareDocumentPosition(document.getElementById("topic-progress")) & Node.DOCUMENT_POSITION_FOLLOWING);
+  assert.ok(order, "continue button sits below the tab content");
+  const yTabs = await pg.waitForFunction(() => { const y = document.querySelector(".topic-view .tabs").getBoundingClientRect().top; return y >= 0 && y < 260 ? y : false; }, null, { timeout: 4000 }).then(h => h.jsonValue()).catch(async () => pg.evaluate(() => document.querySelector(".topic-view .tabs").getBoundingClientRect().top));
+  assert.ok(yTabs >= 0 && yTabs < 260, "after continuing, page scrolls back to the top of the new tab (" + yTabs + ")");
 });
 await step("LKPD virtual: readings, graph, save, checks without leaking values, submit", async () => {
   await pg.waitForSelector("#group-banner-eksperimen.gb-leader");
@@ -253,12 +262,20 @@ await step("Eksperimen gate -> teacher approves -> Latihan & Makerspace unlock",
   await api({ mode: "teacher_gate_decide", teacherToken: TT, topicId: req.topicId, studentId: req.studentId, stage: "eksperimen", decision: "approved" });
   await pg.waitForSelector("#eksperimen-gate-banner.gate-approved", { timeout: 15000 });
   assert.ok(!(await pg.getAttribute('.tab-btn[data-tab="lab"]', "class")).includes("locked"));
+  assert.ok(await tabDone(pg, "eksperimen"), "Eksperimen done after teacher approval");
+  assert.ok(!(await tabDone(pg, "latihan")), "Latihan not done yet");
 });
 await step("Latihan answers are recorded", async () => {
   await pg.click('.tab-btn[data-tab="latihan"]');
   await pg.locator("#panel-latihan input[type=radio]").first().check();
   await pg.locator("[data-latihan-check]").first().click();
   await pg.waitForSelector(".latihan-fb:not([hidden])");
+  // tombol lanjut di bawah soal terakhir -> Makerspace, Latihan ditandai selesai
+  assert.match(await pg.textContent("#progress-next-btn"), /Makerspace/);
+  await pg.click("#progress-next-btn");
+  await pg.waitForSelector("#panel-lab.active");
+  assert.ok(await tabDone(pg, "latihan"), "Latihan done after continuing");
+  assert.ok(!(await tabDone(pg, "lab")), "Makerspace not done before teacher confirms");
 });
 await step("Self-study: no AI (Tutor & Makerspace hidden, server refuses)", async () => {
   await pg.click('.tab-btn[data-tab="lab"]');
@@ -302,6 +319,16 @@ await step("Makerspace: streaming generate, edit, reflection to teacher", async 
   await pg.waitForSelector("#lab-gate-banner.gate-pending");
   await pg.locator(".lab-grid").scrollIntoViewIfNeeded();
   await pg.screenshot({ path: path.join(SHOTS, "05-makerspace.png") });
+});
+await step("Makerspace confirmed by teacher -> all four tabs show the done mark", async () => {
+  const ro = await api({ mode: "teacher_roster", teacherToken: TT });
+  const req = ro.gatePending.find(g => g.stage === "lab");
+  assert.ok(req, "lab reflection is pending at the teacher");
+  await api({ mode: "teacher_gate_decide", teacherToken: TT, topicId: req.topicId, studentId: req.studentId, stage: "lab", decision: "approved" });
+  await pg.waitForSelector("#lab-gate-banner.gate-approved", { timeout: 15000 });
+  for (const tab of ["materi", "eksperimen", "latihan", "lab"]) assert.ok(await tabDone(pg, tab), tab + " done");
+  await pg.evaluate(() => window.scrollTo(0, 0));
+  await pg.screenshot({ path: path.join(SHOTS, "21-tabs-done.png") });
 });
 await step("Group member: leader name + read-only LKPD & simulation on own device", async () => {
   const bp = await newPage();
@@ -668,6 +695,75 @@ await step("Transparent header + burger menu: nothing overlaps, keyboard friendl
     await hp.waitForSelector("#menu-drawer", { state: "hidden", timeout: 2000 }); // menu menutup, modal tidak tertimpa
     await hp.context().close();
   }
+});
+// Tombol tutup harus tetap terlihat & bisa diklik di kanan atas walau isi panel sudah digulir ke bawah
+async function closeBtnReachable(p, boxSel, btnSel) {
+  return p.evaluate(([bs, cs]) => {
+    const box = document.querySelector(bs), btn = document.querySelector(cs);
+    box.scrollTop = box.scrollHeight;
+    const r = btn.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return { scrolled: box.scrollTop > 0, onTop: !!hit && (hit === btn || btn.contains(hit)), topRight: r.top - b.top < 40 && b.right - r.right < 40 };
+  }, [boxSel, btnSel]);
+}
+await step("Close buttons stay at the top right while a panel is scrolled (phone + desktop)", async () => {
+  for (const vp of [{ width: 390, height: 640 }, { width: 1360, height: 700 }]) {
+    const cp = await newPage(vp);
+    await loginStudent(cp, "Rina Putri", PIN["Rina Putri"], "self");
+    await cp.waitForSelector("#site-shell:not([hidden])");
+    await cp.click("#menu-btn"); await cp.waitForSelector("#menu-drawer.open"); await cp.waitForTimeout(350);
+    let r = await closeBtnReachable(cp, "#menu-drawer", "#menu-close-btn");
+    assert.ok(r.onTop && r.topRight, "menu close reachable at " + vp.width + ": " + JSON.stringify(r));
+    await cp.click("#menu-close-btn"); await cp.waitForSelector("#menu-drawer", { state: "hidden" });
+    await cp.click("#menu-btn"); await cp.waitForSelector("#menu-drawer.open"); await cp.click("#settings-btn");
+    await cp.waitForSelector("#settings-modal:not([hidden])");
+    await cp.evaluate(() => document.querySelectorAll("#settings-modal details").forEach(d => d.open = true));
+    r = await closeBtnReachable(cp, "#settings-modal .modal-box", "#settings-close-x");
+    assert.ok(r.scrolled && r.onTop && r.topRight, "settings close reachable at " + vp.width + ": " + JSON.stringify(r));
+    if (vp.width === 390) await cp.screenshot({ path: path.join(SHOTS, "22-phone-modal-scrolled.png") });
+    await cp.click("#settings-close-x"); await cp.waitForSelector("#settings-modal", { state: "hidden" });
+    await cp.context().close();
+  }
+  const tp = await newPage({ width: 390, height: 640 });
+  await teacherLoginUI(tp);
+  await tp.click('.t-tab[data-pane="records"]');
+  await tp.waitForSelector("#records-body .student-link");
+  await tp.locator("#records-body .student-link").first().click();
+  await tp.waitForSelector("#student-modal:not([hidden])");
+  await tp.waitForTimeout(500);
+  const r = await closeBtnReachable(tp, "#student-modal .modal-box", "#student-modal-close-x");
+  assert.ok(r.scrolled && r.onTop && r.topRight, "teacher student-detail close reachable: " + JSON.stringify(r));
+  assert.ok(!(await tp.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)), "teacher panel: no horizontal scroll on phone");
+  await tp.context().close();
+});
+await step("Phone layout: no page wider than the screen (student tabs, teacher panes, admin)", async () => {
+  const W = 390;
+  const wide = p => p.evaluate(w => document.documentElement.scrollWidth > w + 1, W);
+  const sp = await newPage({ width: W, height: 844 });
+  await loginStudent(sp, "Rina Putri", PIN["Rina Putri"], "self");
+  await sp.waitForSelector("#site-shell:not([hidden])");
+  await sp.click("#welcome-start-btn"); await sp.waitForSelector(".deck-slide");
+  for (const tab of ["materi", "eksperimen", "latihan", "lab"]) {
+    await sp.click(`.tab-btn[data-tab="${tab}"]`); await sp.waitForTimeout(600);
+    assert.ok(!(await wide(sp)), "student " + tab + " fits the phone");
+    const clipped = await sp.evaluate(() => { const L = document.querySelector(".tab-panel.active .lkpd"); if (!L) return 0; const lb = L.getBoundingClientRect(); return [...L.querySelectorAll("h4, .lkpd-desc, .lkpd-q")].filter(e => e.getBoundingClientRect().right > lb.right + 1).length; });
+    assert.equal(clipped, 0, "LKPD text not cut off on " + tab);
+  }
+  await sp.context().close();
+  const tp = await newPage({ width: W, height: 844 });
+  await tp.goto(BASE + "/teacher.html");
+  assert.ok(!(await wide(tp)), "teacher login fits the phone");
+  await teacherLoginUI(tp);
+  for (const pane of ["session", "accounts", "records", "quiz"]) {
+    await tp.click(`.t-tab[data-pane="${pane}"]`); await tp.waitForTimeout(500);
+    const culprits = await tp.evaluate(w => [...document.querySelectorAll("#teacher-panel *")].filter(el => { if (!el.offsetParent) return false; const b = el.getBoundingClientRect(); if (!(b.width && b.right > w + 1)) return false; for (let a = el.parentElement; a; a = a.parentElement) { if (/(auto|scroll|hidden)/.test(getComputedStyle(a).overflowX) && a.getBoundingClientRect().right <= w + 1) return false; } return true; }).slice(0, 6).map(el => el.tagName + "#" + el.id + "." + el.className + " W" + Math.round(el.getBoundingClientRect().width)), W);
+    assert.ok(!(await wide(tp)), "teacher " + pane + " fits the phone: " + culprits.join(" | "));
+  }
+  await tp.context().close();
+  const ap = await newPage({ width: W, height: 844 });
+  await ap.goto(BASE + "/admin.html");
+  assert.ok(!(await wide(ap)), "admin login fits the phone");
+  await ap.context().close();
 });
 await step("Validator: explore code via gate link", async () => {
   const vp = await newPage();

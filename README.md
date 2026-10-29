@@ -34,6 +34,13 @@ Setiap guru hanya melihat siswa, kelompok, sesi, kuis, dan tes miliknya sendiri.
 - Guru bisa mengganti ketua dan melepas kunci perangkat bila ketua pindah perangkat.
 - **AI hanya di kelas.** Tutor Fisika, Makerspace, dan pemeriksaan data eksperimen oleh AI hanya berjalan saat siswa berada di sesi kelas yang aktif (diperiksa di server). Mode mandiri tidak memakai AI sama sekali, jadi kuota API tidak terpakai di luar kelas. Kode eksplorasi (validator) tetap bisa mencoba semua fitur, jadi jangan sebarkan kode itu.
 
+## Yang baru di V11
+
+- Tombol tutup (X) di menu, Pengaturan, kuis, detail siswa dan semua jendela lain menempel di kanan atas, jadi tetap bisa diklik walau isinya sudah digulir ke bawah.
+- Progress bar di atas panel siswa dihapus. Tab yang sudah selesai diberi lingkaran hijau bercentang langsung di tombol tabnya.
+- Tombol "Lanjut ke ..." pindah ke bawah konten tab, lengkap dengan petunjuk singkat. Setelah diklik, halaman otomatis kembali ke awal tab berikutnya.
+- Tampilan HP: tab boleh turun baris, rumus panjang bisa digeser, tabel alat & bahan jadi kartu, tombol slide rapi, tombol mengambang jadi ikon bulat, Tutor Fisika hampir layar penuh, dan Panel Guru/Admin tidak lagi melebar di layar kecil.
+
 ## Yang baru di V9
 
 - **Tanpa API key di sisi pengguna.** Semua panggilan AI lewat server Vercel; API key Claude disimpan sebagai Environment Variable.

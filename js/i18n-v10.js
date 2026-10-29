@@ -283,5 +283,13 @@ Object.assign(I18N_STRINGS, {
   "admin.pw.desc": { id: "Hanya ada satu akun admin. Setelah kata sandi diganti di sini, ADMIN_PASSWORD di Vercel tidak dipakai lagi untuk masuk.", en: "There is only one admin account. After you change the password here, ADMIN_PASSWORD in Vercel is no longer used to sign in." },
   "admin.pw.next": { id: "Kata sandi baru (minimal 10 karakter)", en: "New password (at least 10 characters)" },
   "admin.pw.repeat": { id: "Ulangi kata sandi baru", en: "Repeat the new password" },
-  "admin.pw.mismatch": { id: "Kedua kata sandi baru tidak sama.", en: "The two new passwords do not match." }
+  "admin.pw.mismatch": { id: "Kedua kata sandi baru tidak sama.", en: "The two new passwords do not match." },
+
+  /* ---------- V11: status selesai di tab & tombol lanjut di bawah ---------- */
+  "tab.done.aria": { id: "Selesai", en: "Completed" },
+  "progress.hint.materi": { id: "Sudah membaca semua slide? Tekan tombol di bawah untuk menjawab pertanyaan konfirmasi. Kalau lulus, Eksperimen terbuka.", en: "Finished all the slides? Press the button below to answer the check questions. Pass them to open Experiments." },
+  "progress.hint.eksperimen": { id: "Simpan data LKPD dulu, lalu tekan tombol di bawah untuk menjawab pertanyaan konfirmasi. Gurumu akan mengonfirmasi sebelum Latihan Soal terbuka.", en: "Save your worksheet data first, then press the button below to answer the check questions. Your teacher confirms before Practice Questions open." },
+  "progress.hint.latihan": { id: "Kerjakan semua soal, lalu lanjut ke Makerspace.", en: "Work through every question, then continue to the Makerspace." },
+  "progress.hint.lab": { id: "Kirim refleksi simulasimu. Tab Makerspace ditandai selesai setelah gurumu mengonfirmasi.", en: "Send your simulation reflection. The Makerspace tab is marked complete once your teacher confirms it." },
+  "progress.hint.pending": { id: "Menunggu konfirmasi gurumu. Tombol lanjut muncul di sini setelah disetujui.", en: "Waiting for your teacher to confirm. The continue button appears here once it is approved." }
 });

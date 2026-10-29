@@ -239,23 +239,10 @@
       </div>
 
       <div class="tabs" role="tablist">
-        <button class="tab-btn active" data-tab="materi" role="tab"><span class="tab-num">01</span><span data-i18n="tab.materi">Materi</span></button>
-        <button class="tab-btn" data-tab="eksperimen" role="tab"><span class="tab-num">02</span><span data-i18n="tab.eksperimen">Eksperimen</span></button>
-        <button class="tab-btn" data-tab="latihan" role="tab"><span class="tab-num">03</span><span data-i18n="tab.latihan">Latihan Soal</span></button>
-        <button class="tab-btn" data-tab="lab" role="tab"><span class="tab-num">04</span><span data-i18n="tab.lab">Makerspace</span></button>
-      </div>
-
-      <div class="topic-progress" id="topic-progress" hidden>
-        <div class="progress-steps" id="progress-steps"></div>
-        <div>
-          <button type="button" id="progress-next-btn" class="btn btn-primary btn-small" hidden>
-            <span data-i18n="progress.continueto">Lanjut ke</span> <span id="progress-next-label"></span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
-          </button>
-          <button type="button" id="progress-finish-btn" class="btn btn-primary btn-small" hidden>
-            <span data-i18n="progress.finish">Topik selesai - Lanjut ke Topik Berikutnya</span>
-          </button>
-        </div>
+        <button class="tab-btn active" data-tab="materi" role="tab"><span class="tab-num">01</span><span class="tab-label" data-i18n="tab.materi">Materi</span><span class="tab-done" role="img" data-i18n-aria="tab.done.aria" aria-label="Selesai"></span></button>
+        <button class="tab-btn" data-tab="eksperimen" role="tab"><span class="tab-num">02</span><span class="tab-label" data-i18n="tab.eksperimen">Eksperimen</span><span class="tab-done" role="img" data-i18n-aria="tab.done.aria" aria-label="Selesai"></span></button>
+        <button class="tab-btn" data-tab="latihan" role="tab"><span class="tab-num">03</span><span class="tab-label" data-i18n="tab.latihan">Latihan Soal</span><span class="tab-done" role="img" data-i18n-aria="tab.done.aria" aria-label="Selesai"></span></button>
+        <button class="tab-btn" data-tab="lab" role="tab"><span class="tab-num">04</span><span class="tab-label" data-i18n="tab.lab">Makerspace</span><span class="tab-done" role="img" data-i18n-aria="tab.done.aria" aria-label="Selesai"></span></button>
       </div>
 
       <div class="tab-panels">
@@ -362,6 +349,21 @@
             <p class="teacher-note" id="lab-reflection-status"></p>
           </div>
         </section>
+      </div>
+
+      <!-- V11: tombol lanjut ada di BAWAH konten tab (siswa baru bisa lanjut setelah selesai),
+           status selesai tiap tab tampil sebagai lingkaran hijau di tombol tab di atas. -->
+      <div class="topic-next" id="topic-progress" hidden>
+        <p class="topic-next-hint" id="topic-next-hint"></p>
+        <div class="topic-next-actions">
+          <button type="button" id="progress-next-btn" class="btn btn-primary" hidden>
+            <span data-i18n="progress.continueto">Lanjut ke</span> <span id="progress-next-label"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          <button type="button" id="progress-finish-btn" class="btn btn-primary" hidden>
+            <span data-i18n="progress.finish">Topik selesai - Lanjut ke Topik Berikutnya</span>
+          </button>
+        </div>
       </div>
     </div>
   </main>
@@ -531,6 +533,7 @@
 <script src="js/chatbot-data.js"></script>
 <script src="js/chatbot.js"></script>
 <script src="js/app.js"></script>
+<script src="js/ui-v11.js"></script>
 <script src="js/sumatif-render.js"></script>
 <script src="js/sumatif-student.js"></script>
 <script src="js/hero-slides.js"></script>

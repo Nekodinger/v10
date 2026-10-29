@@ -1149,15 +1149,69 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-/* ---------------- Progress bar bertahap ---------------- */
+/* ---------------- Status selesai per tab + tombol lanjut (V11) ----------------
+   V11: progress bar di atas panel dihapus. Status tiap tab sekarang tampil
+   langsung di tombol tab (lingkaran hijau = selesai), dan tombol "Lanjut ke"
+   pindah ke BAWAH konten tab, karena siswa baru bisa lanjut setelah
+   menyelesaikan isi tab itu (tidak perlu scroll ke atas lagi).
+   Kapan sebuah tab dianggap "selesai":
+   - Materi     : lulus pertanyaan konfirmasi Materi (progres >= Eksperimen).
+   - Eksperimen : konfirmasi Eksperimen disetujui guru.
+   - Latihan    : siswa menekan "Lanjut ke Makerspace" dari tab Latihan, atau
+                  sudah mengirim refleksi Makerspace.
+   - Makerspace : refleksi Makerspace disetujui guru.
+   Status diambil dari progres & cache konfirmasi guru yang sudah ada, ditambah
+   satu tanda lokal untuk Latihan (tidak ada gate guru di tahap itu). */
+const STORAGE_KEY_TAB_DONE = "emergent.tabDone";
+function getTabDoneMarks() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_TAB_DONE) || "{}") || {}; }
+  catch (e) { return {}; }
+}
+function markTabDone(topicId, tab) {
+  const m = getTabDoneMarks();
+  m[topicId] = Object.assign({}, m[topicId], { [tab]: true });
+  try { localStorage.setItem(STORAGE_KEY_TAB_DONE, JSON.stringify(m)); } catch (e) { /* penyimpanan penuh/diblokir: status tetap dihitung dari progres */ }
+}
+function isTabDone(topicId, tab) {
+  const p = getProgress()[topicId];
+  const reached = p === undefined ? -1 : p;
+  const marks = getTabDoneMarks()[topicId] || {};
+  const eks = getGateCacheEntry(topicId, "eksperimen");
+  const lab = getGateCacheEntry(topicId, "lab");
+  if (tab === "materi") return reached >= 1 || !!marks.materi;
+  if (tab === "eksperimen") return !!(eks && eks.status === "approved") || !!marks.eksperimen;
+  if (tab === "latihan") return !!marks.latihan || !!(lab && lab.status);
+  if (tab === "lab") return !!(lab && lab.status === "approved");
+  return false;
+}
+function renderTabDoneStates() {
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    const done = !!currentTopic && currentTopic.status === "ready" && isTabDone(currentTopic.id, b.dataset.tab);
+    b.classList.toggle("done", done);
+  });
+}
+// Pindah tab dari tombol di bawah: gulir ke awal konten tab yang baru
+// (tepat di bawah deretan tab, tidak tertutup header).
+function scrollToTabsTop() {
+  const tabs = document.querySelector(".topic-view .tabs");
+  if (!tabs) return;
+  const header = document.getElementById("site-header");
+  const offset = (header ? header.getBoundingClientRect().height : 0) + 12;
+  const y = tabs.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+}
+function goToTab(tabName) {
+  switchTab(tabName);
+  if (document.querySelector(".tab-btn.active")?.dataset.tab === tabName) scrollToTabsTop();
+}
 function updateTopicProgressUI(activeTab) {
   const bar = document.getElementById("topic-progress");
-  const stepsEl = document.getElementById("progress-steps");
+  const hintEl = document.getElementById("topic-next-hint");
   const nextBtn = document.getElementById("progress-next-btn");
   const finishBtn = document.getElementById("progress-finish-btn");
   if (!currentTopic || currentTopic.status !== "ready") {
     bar.hidden = true;
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("locked"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("locked", "done"));
     return;
   }
 
@@ -1166,20 +1220,16 @@ function updateTopicProgressUI(activeTab) {
   document.querySelectorAll(".tab-btn").forEach(b => {
     b.classList.toggle("locked", isTabLocked(currentTopic.id, b.dataset.tab));
   });
-  bar.hidden = false;
-  stepsEl.innerHTML = TAB_ORDER.map((tab, i) => {
-    let state;
-    if (i === activeIdx) state = "current";
-    else if (i < activeIdx) state = "done";
-    else state = (i <= unlocked) ? "unlocked" : "locked";
-    return `<span class="progress-step ${state}"><span class="progress-step-dot"></span>${TAB_LABELS[tab]}</span>`;
-  }).join(`<span class="progress-step-line"></span>`);
+  renderTabDoneStates();
 
+  let hint = "";
   const isLastTab = activeIdx === TAB_ORDER.length - 1;
   const nextTopicId = nextReadyTopicId(currentTopic.id);
   if (isLastTab) {
     nextBtn.hidden = true;
     finishBtn.hidden = !nextTopicId || isUnlockAll();
+    // Saat mandiri Makerspace tertutup (catatan "dikerjakan di kelas" sudah tampil), jadi tanpa petunjuk.
+    if (!isTabDone(currentTopic.id, "lab") && !isUnlockAll() && aiAvailable()) hint = t("progress.hint.lab");
   } else if (activeIdx <= unlocked) {
     // "<=" (bukan cuma "===") supaya Next tetap ada di tab yang sudah pernah
     // dilewati juga - perlu karena persetujuan guru di Eksperimen membuka
@@ -1193,14 +1243,19 @@ function updateTopicProgressUI(activeTab) {
     const eksGate = activeTab === "eksperimen" ? getGateCacheEntry(currentTopic.id, "eksperimen") : null;
     if (eksGate && eksGate.status === "pending") {
       nextBtn.hidden = true;
+      hint = t("progress.hint.pending");
     } else {
       nextBtn.hidden = false;
       document.getElementById("progress-next-label").textContent = TAB_LABELS[TAB_ORDER[activeIdx + 1]];
+      if (!isUnlockAll() && activeIdx >= unlocked) hint = t("progress.hint." + activeTab);
     }
   } else {
     nextBtn.hidden = true;
     finishBtn.hidden = true;
   }
+  hintEl.textContent = hint;
+  hintEl.hidden = !hint;
+  bar.hidden = nextBtn.hidden && finishBtn.hidden && !hint;
 }
 document.getElementById("progress-next-btn").addEventListener("click", () => {
   if (!currentTopic) return;
@@ -1221,7 +1276,7 @@ document.getElementById("progress-next-btn").addEventListener("click", () => {
       // Eksperimen kelompok sudah disetujui guru sebelumnya -> langsung buka Latihan & Makerspace juga
       const eg = getGateCacheEntry(currentTopic.id, "eksperimen");
       if (eg && eg.status === "approved") advanceProgress(currentTopic.id, TAB_ORDER.length - 1);
-      switchTab(TAB_ORDER[activeIdx + 1]);
+      goToTab(TAB_ORDER[activeIdx + 1]);
     });
     return;
   }
@@ -1252,8 +1307,9 @@ document.getElementById("progress-next-btn").addEventListener("click", () => {
   // Latihan Soal -> Lab Simulasi (langsung next tanpa pertanyaan konfirmasi
   // maupun persetujuan guru, sesuai permintaan user), atau tab manapun yang
   // sudah pernah dilewati sebelumnya: next langsung.
+  if (activeTab === "latihan") markTabDone(currentTopic.id, "latihan");
   advanceProgress(currentTopic.id, activeIdx + 1);
-  switchTab(TAB_ORDER[activeIdx + 1]);
+  goToTab(TAB_ORDER[activeIdx + 1]);
 });
 document.getElementById("progress-finish-btn").addEventListener("click", () => {
   const nextId = currentTopic ? nextReadyTopicId(currentTopic.id) : null;
