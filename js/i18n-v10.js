@@ -285,6 +285,15 @@ Object.assign(I18N_STRINGS, {
   "admin.pw.repeat": { id: "Ulangi kata sandi baru", en: "Repeat the new password" },
   "admin.pw.mismatch": { id: "Kedua kata sandi baru tidak sama.", en: "The two new passwords do not match." },
 
+  /* ---------- V12: sintaks PjBL berpusat pada produk akhir (simulasi di Makerspace) ---------- */
+  "pjbl.stage.materi": { id: "Tahap PjBL 1: Penentuan Pertanyaan Mendasar", en: "PjBL Step 1: The Essential Question" },
+  "pjbl.stage.eksperimen": { id: "Tahap PjBL 2-4: Mendesain Produk Simulasi dan Menyusun Jadwal di Rencana Proyek, lalu Mengumpulkan Data untuk Mengujinya (perlu konfirmasi guru)", en: "PjBL Steps 2-4: Design the Simulation and Plan the Schedule in the Project Plan, then Collect the Data to Test It (needs teacher confirmation)" },
+  "pjbl.stage.latihan": { id: "Tahap PjBL 4: Memonitor Kemajuan (penguatan konsep, checkpoint formatif mandiri)", en: "PjBL Step 4: Monitoring Progress (concept reinforcement, self-checked formative checkpoint)" },
+  "pjbl.stage.lab": { id: "Tahap PjBL 5-6: Membuat dan Menguji Produk Simulasi, lalu Mengevaluasi Pengalaman (perlu konfirmasi guru untuk menandai topik selesai)", en: "PjBL Steps 5-6: Build and Test the Simulation, then Evaluate the Experience (needs teacher confirmation to mark the topic complete)" },
+  "stage.eksperimen.pjbl": { id: "Rancang produk & data", en: "Design & data" },
+  "stage.latihan.pjbl": { id: "Memonitor kemajuan", en: "Monitoring progress" },
+  "stage.lab.pjbl": { id: "Produk, uji & refleksi", en: "Product, test & reflection" },
+
   /* ---------- V11: status selesai di tab & tombol lanjut di bawah ---------- */
   "tab.done.aria": { id: "Selesai", en: "Completed" },
   "progress.hint.materi": { id: "Sudah membaca semua slide? Tekan tombol di bawah untuk menjawab pertanyaan konfirmasi. Kalau lulus, Eksperimen terbuka.", en: "Finished all the slides? Press the button below to answer the check questions. Pass them to open Experiments." },

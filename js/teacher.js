@@ -421,6 +421,15 @@ function renderDetail(d) {
     html += sec(`LKPD · ${modeName(l.topicId, l.mode)} · ${pct(l.progress)} · ${t("teacher.rec.score")} ${pct(l.score)}` + (l.submittedAt ? ` · ${t("teacher.rec.submitted")} ${fmtTime(l.submittedAt)}` : ""),
       list(rows.map(r => [escapeHtml(r.item), (r.question ? `<span class="muted small">${escapeHtml(r.question)}</span><br>` : "") + escapeHtml(r.answer) + " " + correctnessHTML(r) + (r.key && r.correct === false ? ` <span class="muted small">(${t("teacher.lkpd.key")} ${r.key})</span>` : "") + (r.revealed ? ` <span class="muted small">${t("teacher.lkpd.revealed")}</span>` : "")])));
   });
+  // V12: Lembar Rencana Proyek kelompok (diisi bersama semua anggota)
+  if (window.PlanDef) (d.plans || []).forEach(p => {
+    const rows = PlanDef.rows(p.fields || {});
+    const L = PlanDef.L;
+    const title = L({ id: "Rencana Proyek", en: "Project Plan" }) + " · " + topicTitle(p.topicId) + (p.group ? " · " + L({ id: "kelompok", en: "group" }) : "") + (p.updatedAt ? " · " + fmtTime(p.updatedAt) : "");
+    const chk = PlanDef.checks(p.fields || {});
+    html += sec(title, list(rows.map(r => [escapeHtml(r.label), `<span style="white-space:pre-wrap">${escapeHtml(r.value)}</span>` + (r.by ? ` <span class="muted small">(${escapeHtml(r.by)})</span>` : "")])) +
+      `<p class="small" style="margin-top:8px">${chk.map(c => `<span class="pill ${c.ok ? "ok" : "bad"}">${c.ok ? "✓" : "·"}</span> ${escapeHtml(L(c.label).replace(/\$/g, ""))}`).join("<br>")}</p>`);
+  });
   d.experiments.forEach(x => {
     const rows = (x.rows || []).map(r => `<tr><td>${r.I == null ? "-" : r.I}</td>${(r.values || []).map(v => `<td>${v == null ? "" : v}</td>`).join("")}</tr>`).join("");
     const an = x.analysis || {};

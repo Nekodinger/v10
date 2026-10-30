@@ -140,6 +140,7 @@ await step("Materi: slide viewer renders 31 slides with embeds and builds", asyn
   await pg.click("#welcome-start-btn");
   await pg.waitForSelector(".deck-slide");
   assert.equal(await pg.textContent(".deck-counter"), "01 / 31");
+  assert.ok(await pg.isHidden("#plan-toggle-btn"), "project plan button hidden before the Experiment tab is reached");
   await pg.evaluate(() => SlideViewer.current().go(7));
   assert.equal(await pg.locator(".deck-stage iframe.deck-embed").count(), 1, "x-embed becomes sandboxed iframe");
   await pg.evaluate(() => SlideViewer.current().go(12));
@@ -167,6 +168,7 @@ await step("Materi gate: fail keeps modal open, pass unlocks Eksperimen", async 
   // V11: tidak ada lagi progress bar; status selesai tampil di tab, tombol lanjut di bawah konten
   assert.equal(await pg.locator("#progress-steps, .progress-step").count(), 0, "old progress bar removed");
   assert.ok(await tabDone(pg, "materi"), "Materi shows the green done mark");
+  await pg.waitForSelector("#plan-toggle-btn:not([hidden])", { timeout: 4000 });
   assert.ok(!(await tabDone(pg, "eksperimen")), "Eksperimen not done yet");
   const order = await pg.evaluate(() => document.querySelector(".tab-panels").compareDocumentPosition(document.getElementById("topic-progress")) & Node.DOCUMENT_POSITION_FOLLOWING);
   assert.ok(order, "continue button sits below the tab content");
@@ -378,6 +380,54 @@ await step("Leader on a second device: read-only until moved, then takes over", 
   const r = await pg.evaluate(() => apiCall("lkpd_save", { topicId: "magnetic-fields", lkpdMode: "virtual", data: {}, progress: 0 }));
   assert.equal(r._status, 409);
 });
+await step("Project plan: one shared sheet per group, live updates, presence, Makerspace fill", async () => {
+  const ra = await newPage(), ba = await newPage();
+  for (const [p, n] of [[ra, "Rina Putri"], [ba, "Budi Santoso"]]) {
+    await loginStudent(p, n, PIN[n], "self");
+    await p.waitForSelector("#site-shell:not([hidden])");
+    await p.waitForFunction(() => { const w = document.getElementById("welcome-start-btn"); return (w && w.offsetParent) || document.querySelector(".deck-slide"); });
+    if (await p.isVisible("#welcome-start-btn")) await p.click("#welcome-start-btn");
+    await p.waitForSelector("#plan-toggle-btn:not([hidden])", { timeout: 8000 });
+    await p.click("#plan-toggle-btn");
+    await p.waitForSelector('#plan-overlay:not([hidden]) [data-k="p_vars"]');
+  }
+  // Rina menulis; Budi melihat isinya muncul tanpa memuat ulang
+  await ra.click('[data-k="p_vars"]');
+  await ra.keyboard.type("arus I 0-3 A, panjang kawat L 2-8 cm");
+  await ra.waitForFunction(() => /Tersimpan/.test(document.getElementById("plan-save-state").textContent), null, { timeout: 8000 });
+  await ba.waitForFunction(() => document.querySelector('[data-k="p_vars"]').value === "arus I 0-3 A, panjang kawat L 2-8 cm", null, { timeout: 10000 });
+  // kehadiran: Budi melihat Rina sedang mengisi kolom variabel
+  await ra.click('[data-k="p_vars"]');
+  await ba.waitForFunction(() => /Rina Putri sedang mengisi/.test(document.querySelector('[data-pres-for="p_vars"]').textContent), null, { timeout: 10000 });
+  assert.match(await ba.textContent("#plan-members"), /Rina/);
+  // Budi mengisi kolom lain di saat yang sama; tidak saling menimpa
+  await ba.fill('[data-k="idea_1"]', "Slider arus dan pembacaan neraca dalam gram");
+  await ba.selectOption('[data-k="cat_1"]', "a");
+  await ra.fill('[data-k="p_goal"]', "siswa menemukan bahwa gradien grafik F-I sama dengan BL");
+  await ra.fill('[data-k="full_prompt"]', "Buat alat peraga virtual neraca arus dengan slider arus 0-3 A dan grafik F terhadap I.");
+  await ra.waitForFunction(() => document.querySelector('[data-k="idea_1"]').value.startsWith("Slider arus"), null, { timeout: 10000 });
+  await ba.waitForFunction(() => document.querySelector('[data-k="p_goal"]').value.startsWith("siswa menemukan"), null, { timeout: 10000 });
+  // konflik pada kolom yang sama: versi lama ditolak server, tidak menimpa diam-diam
+  const before = await api({ mode: "plan_get", token: await ra.evaluate(() => getAccessToken()), topicId: "magnetic-fields" });
+  const ver = before.fields.unique ? before.fields.unique.ver : 0;
+  const tokB = await ba.evaluate(() => getAccessToken());
+  const w1 = await api({ mode: "plan_save", token: tokB, topicId: "magnetic-fields", patches: [{ k: "unique", v: "Mode tebak nilai B", base: ver }] });
+  assert.equal(w1.results.unique.ok, true);
+  const w2 = await api({ mode: "plan_save", token: tokB, topicId: "magnetic-fields", patches: [{ k: "unique", v: "versi usang", base: ver }] });
+  assert.equal(w2.results.unique.ok, false, "stale write rejected");
+  assert.equal(w2.fields.unique.v, "Mode tebak nilai B");
+  assert.equal((await api({ mode: "plan_save", token: tokB, topicId: "magnetic-fields", patches: [{ k: "bad key!", v: "x", base: 0 }] })).results["bad key!"], undefined, "invalid field names ignored");
+  await ra.screenshot({ path: path.join(SHOTS, "24-project-plan.png") });
+  // tutup dengan tombol di kanan atas
+  await ra.click("#plan-close-btn");
+  await ra.waitForSelector("#plan-overlay", { state: "hidden" });
+  // Makerspace: isi Generator dari rencana proyek
+  await ra.evaluate(() => { document.getElementById("pf-variables").value = ""; });
+  await ra.evaluate(() => window.ProjectPlan.fillGenerator());
+  assert.equal(await ra.inputValue("#pf-variables"), "arus I 0-3 A, panjang kawat L 2-8 cm");
+  assert.match(await ra.inputValue("#final-prompt"), /alat peraga virtual neraca arus/);
+  await ra.context().close(); await ba.context().close();
+});
 await step("Tutor chat streams a reply", async () => {
   await pg.click("#chatbot-toggle-btn");
   await pg.fill("#chatbot-input", "Kenapa F = BIL?");
@@ -517,7 +567,8 @@ await step("Teacher panel: records, detail with LKPD answers, Excel & PDF export
   await tp.click('#records-body .student-link:has-text("Rina Putri")');
   await tp.waitForSelector("#student-modal-body .detail-section");
   const detail = await tp.textContent("#student-modal-body");
-  assert.match(detail, /F sebanding dengan I/); assert.match(detail, /LKPD/); assert.match(detail, /Satuan B adalah/); assert.match(detail, /Saat arus nol/);
+  assert.match(detail, /F sebanding dengan I/); assert.match(detail, /LKPD/);
+  assert.match(detail, /Rencana Proyek/); assert.match(detail, /Mode tebak nilai B/); assert.match(detail, /Satuan B adalah/); assert.match(detail, /Saat arus nol/);
   await tp.screenshot({ path: path.join(SHOTS, "09-teacher-detail.png") });
   const [d1] = await Promise.all([tp.waitForEvent("download"), tp.click("#student-pdf-btn")]);
   const pdfPath = path.join(SHOTS, "student.pdf"); await d1.saveAs(pdfPath);
@@ -527,7 +578,9 @@ await step("Teacher panel: records, detail with LKPD answers, Excel & PDF export
   const xPath = path.join(SHOTS, "rekap.xlsx"); await d2.saveAs(xPath);
   const XLSX = require("xlsx");
   const wb = XLSX.readFile(xPath);
-  assert.deepEqual(wb.SheetNames, ["Rekap", "Konfirmasi", "LKPD", "Data Eksperimen", "Latihan", "Kuis", "Makerspace", "Checkpoint"]);
+  assert.deepEqual(wb.SheetNames, ["Rekap", "Konfirmasi", "LKPD", "Data Eksperimen", "Latihan", "Kuis", "Rencana Proyek", "Makerspace", "Checkpoint"]);
+  const planRows = XLSX.utils.sheet_to_json(wb.Sheets["Rencana Proyek"]);
+  assert.ok(planRows.find(r => r.Siswa === "Rina Putri" && /0-3 A/.test(r.Jawaban)), "project plan exported");
   const lk = XLSX.utils.sheet_to_json(wb.Sheets.LKPD);
   assert.ok(lk.find(r => /^\d\d · Uraian$/.test(r.Butir) && /sebanding/.test(r.Jawaban)), "LKPD conclusion exported");
   const exp = XLSX.utils.sheet_to_json(wb.Sheets["Data Eksperimen"]);

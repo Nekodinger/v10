@@ -1277,3 +1277,56 @@ body.ts-open { overflow: hidden; }
   .teacher-main { padding-left: 12px !important; padding-right: 12px !important; }
   .t-table th, .t-table td { padding: 9px 8px; font-size: 13px; }
 }
+
+/* ==========================================================
+   V12 - Lembar Rencana Proyek Kelompok (diisi bersama)
+   ========================================================== */
+.plan-toggle-btn { background: #1F7A5B; box-shadow: 0 12px 30px rgba(31, 122, 91, .3); }
+.plan-toggle-btn:hover { background: #17664b; }
+.plan-overlay { z-index: 112; }
+.plan-paper { font-family: var(--sans); font-size: 15.5px; line-height: 1.5; max-width: 900px; }
+.plan-paper .eyebrow { margin: 0 0 6px; }
+.plan-intro { margin: 0 0 6px; color: var(--body); }
+.plan-sec { border-top: 1px solid var(--line); padding: 20px 0 6px; }
+.plan-sec h4 { font-family: var(--head); font-size: 19px; color: var(--navy); margin: 0 0 6px; }
+.plan-hint { font-size: 14.5px; color: var(--muted); margin: 0 0 12px; }
+.plan-field { margin: 0 0 12px; }
+.plan-field label { display: block; font-weight: 600; font-size: 14.5px; color: var(--navy); margin: 0 0 5px; }
+.plan-field textarea, .plan-field input, .plan-ideas input, .plan-ideas select, .plan-sched input[type=text] { width: 100%; margin: 0; font: inherit; font-size: 15px; }
+.plan-field-inline { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-items: center; gap: 4px 12px; }
+.plan-field-inline label { margin: 0; }
+.plan-field-inline .plan-meta { grid-column: 2; }
+.plan-meta { min-height: 0; font-size: 12.5px; display: flex; gap: 10px; flex-wrap: wrap; }
+.plan-meta:empty { display: none; }
+.plan-pres { color: #1F7A5B; font-weight: 600; }
+.plan-pres:not(:empty)::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #1F7A5B; margin-right: 5px; vertical-align: 1px; animation: planPulse 1.4s infinite; }
+@keyframes planPulse { 50% { opacity: .35; } }
+.plan-by { color: var(--muted); }
+.plan-ideas, .plan-sched { width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 14.5px; }
+.plan-ideas th, .plan-ideas td, .plan-sched th, .plan-sched td { border: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+.plan-ideas th, .plan-sched th { background: var(--indigo-mist); color: var(--navy); font-family: var(--head); font-weight: 600; font-size: 13px; }
+.plan-ideas td.c, .plan-sched td.c, .plan-ideas th.c, .plan-sched th.c { text-align: center; }
+.plan-sched input[type=checkbox] { width: 20px; height: 20px; accent-color: #1F7A5B; }
+.plan-remote { animation: planFlash 1.6s ease-out; }
+@keyframes planFlash { 0% { background: #E3F4EC; box-shadow: 0 0 0 3px rgba(31, 122, 91, .25); } 100% { background: inherit; box-shadow: none; } }
+.plan-members { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.plan-member { font-size: 12.5px; padding: 2px 9px; border-radius: 30px; background: var(--bg-soft); color: var(--muted); }
+.plan-member.on { background: #E3F4EC; color: #1F7A5B; font-weight: 600; }
+.plan-member.on::before { content: "● "; font-size: 9px; vertical-align: 1px; }
+.plan-checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.plan-checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; color: var(--body); }
+.plan-tick { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-2); margin-top: 2px; }
+.plan-checklist li.ok .plan-tick { border-color: var(--ok); background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.4l3 3 6-6.4' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; }
+.plan-checklist li.ok { color: var(--navy); }
+body.plan-open { overflow: hidden; }
+#pf-plan-btn { margin-left: 6px; }
+@media (max-width: 860px) {
+  .plan-bar { position: relative; padding-right: 56px; }
+  #plan-close-btn { position: absolute; top: 8px; right: 8px; background: var(--bg-soft); }
+  .plan-field-inline { grid-template-columns: minmax(0, 1fr); }
+  .plan-field-inline .plan-meta { grid-column: 1; }
+  .plan-paper { padding: 22px 16px 26px; font-size: 15px; }
+  .plan-ideas td, .plan-sched td, .plan-ideas th, .plan-sched th { padding: 5px; }
+  .plan-sched th:nth-child(1), .plan-sched td:nth-child(1) { width: 18%; }
+}
+@media print { .plan-toggle-btn, .plan-overlay { display: none !important; } }

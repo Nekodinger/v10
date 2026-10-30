@@ -34,6 +34,14 @@ Setiap guru hanya melihat siswa, kelompok, sesi, kuis, dan tes miliknya sendiri.
 - Guru bisa mengganti ketua dan melepas kunci perangkat bila ketua pindah perangkat.
 - **AI hanya di kelas.** Tutor Fisika, Makerspace, dan pemeriksaan data eksperimen oleh AI hanya berjalan saat siswa berada di sesi kelas yang aktif (diperiksa di server). Mode mandiri tidak memakai AI sama sekali, jadi kuota API tidak terpakai di luar kelas. Kode eksplorasi (validator) tetap bisa mencoba semua fitur, jadi jangan sebarkan kode itu.
 
+## Yang baru di V12
+
+- Lembar Rencana Proyek Kelompok langsung di Emergent. Tombol Rencana Proyek muncul di pojok kanan bawah setelah siswa mencapai tab Eksperimen. Semua anggota kelompok mengisi satu lembar yang sama: setiap kolom tersimpan otomatis, perubahan anggota lain muncul dalam beberapa detik, dan nama anggota yang sedang mengisi sebuah kolom ditampilkan. Bila dua anggota mengubah kolom yang sama, simpanan dengan versi lama ditolak server sehingga tidak ada isian yang tertimpa diam-diam.
+- Di Makerspace, tombol Isi dari Rencana Proyek memindahkan draf prompt kelompok ke Generator dan Prompt Final.
+- Panel Guru menampilkan Rencana Proyek di detail siswa dan di lembar Excel "Rencana Proyek".
+- Label tahap PjBL disesuaikan: sintaks 2-3 adalah mendesain produk akhir (simulasi di Makerspace) dan menyusun jadwal, sedangkan data eksperimen dipakai untuk menguji produk itu.
+- Tabel baru: ps_plan dan ps_plan_presence (dibuat otomatis saat server pertama kali berjalan).
+
 ## Yang baru di V11
 
 - Tombol tutup (X) di menu, Pengaturan, kuis, detail siswa dan semua jendela lain menempel di kanan atas, jadi tetap bisa diklik walau isinya sudah digulir ke bawah.

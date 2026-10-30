@@ -42,7 +42,7 @@ window.TeacherExport = (function () {
   }
 
   function collect(data) {
-    const out = { checks: [], lkpd: [], exp: [], lat: [], quiz: [], lab: [], gates: [] };
+    const out = { checks: [], lkpd: [], exp: [], lat: [], quiz: [], lab: [], gates: [], plan: [] };
     data.students.forEach(st => {
       const base = { [t("teacher.rec.student")]: sname(st), [t("teacher.rec.class")]: sclass(st) };
       st.events.forEach(e => {
@@ -69,6 +69,7 @@ window.TeacherExport = (function () {
         const v = (z.answers || {})[q.id];
         out.quiz.push({ ...base, [t("teacher.xl.time")]: ts(z.submittedAt), [t("teacher.xl.score") + " (%)"]: pctv(z.score), "No": i + 1, [t("teacher.xl.question")]: q.question, [t("teacher.xl.answer")]: v == null || v === "" ? "" : (q.type === "mcq" ? String.fromCharCode(65 + v) + ". " + (q.options[v] || "") : v), [t("teacher.xl.correct")]: q.type === "mcq" ? (v === q.correct ? 1 : 0) : "", [t("teacher.xl.modelanswer")]: q.modelAnswer || "" });
       }));
+      if (window.PlanDef) (st.plans || []).forEach(p => PlanDef.rows(p.fields || {}).forEach(r => out.plan.push({ ...base, [PlanDef.L({ id: "Bagian", en: "Part" })]: r.section, [PlanDef.L({ id: "Butir", en: "Item" })]: r.label, [t("teacher.xl.answer")]: r.value, [PlanDef.L({ id: "Diisi oleh", en: "Edited by" })]: r.by })));
       st.gates.forEach(g => out.gates.push({ ...base, [t("teacher.gate.th.stage")]: g.stage === "eksperimen" ? t("teacher.gate.stage.eksperimen") : t("teacher.gate.stage.lab"), Status: t("teacher.gatestatus." + g.status), [t("teacher.gate.th.summary")]: g.summary || "", [t("teacher.xl.note")]: g.note || "", [t("teacher.gate.th.submitted")]: ts(g.submittedAt), [t("teacher.xl.decided")]: ts(g.decidedAt) }));
     });
     return out;
@@ -95,6 +96,7 @@ window.TeacherExport = (function () {
     XLSX.utils.book_append_sheet(wb, sheet(c.exp, none), t("teacher.xl.sheet.exp"));
     XLSX.utils.book_append_sheet(wb, sheet(c.lat, none), t("teacher.xl.sheet.latihan"));
     XLSX.utils.book_append_sheet(wb, sheet(c.quiz, none), t("teacher.xl.sheet.quiz"));
+    XLSX.utils.book_append_sheet(wb, sheet(c.plan, none), window.PlanDef ? PlanDef.L({ id: "Rencana Proyek", en: "Project Plan" }) : "Rencana Proyek");
     XLSX.utils.book_append_sheet(wb, sheet(c.lab, none), "Makerspace");
     XLSX.utils.book_append_sheet(wb, sheet(c.gates, none), t("teacher.xl.sheet.gates"));
     wb.Props = { Title: "Emergent - " + t("teacher.xl.sheet.recap"), Author: "Emergent", CreatedDate: new Date() };
