@@ -36,9 +36,9 @@ Setiap guru hanya melihat siswa, kelompok, sesi, kuis, dan tes miliknya sendiri.
 
 ## Yang baru di V13
 
-- **Tutorial interaktif (spotlight).** Saat halaman pertama kali dibuka, muncul jendela sambutan berisi daftar tutorial dan tombol Modul PDF. Bagian yang dibahas disorot, bagian lain diredupkan; kartu tutorial menampilkan "Tutorial x dari y" dan "Langkah x dari y" dengan tombol Lanjut, Kembali, dan Lewati (keyboard: → / ← / Esc). Siswa 5 tutorial (Halaman masuk, Ruang belajar, Di dalam topik, Tutor Fisika, Makerspace), guru 2, admin 2. Setiap tutorial berjalan otomatis saat bagiannya pertama kali muncul dan tidak muncul lagi setelah selesai atau dilewati.
-- **Tombol Panduan** di halaman masuk, Panel Guru, dan Panel Admin, serta Menu → Panduan & Tutorial di sisi siswa: mengulang tutorial, membuka/mengunduh modul, dan mematikan tutorial otomatis.
-- **Modul Penggunaan (PDF)** di `assets/panduan/Modul-Penggunaan-Emergent.pdf`: alur akun (admin → guru → siswa), panduan tiap peran, petunjuk Tutor Fisika dan Makerspace AI, serta pemecahan masalah.
+- **Tutorial interaktif (spotlight), hanya setelah login.** Saat siswa pertama kali masuk ke ruang belajar atau guru pertama kali masuk ke Panel Guru, muncul jendela sambutan berisi daftar tutorial dan tombol Modul PDF. Bagian yang dibahas disorot, bagian lain diredupkan; kartu tutorial menampilkan "Tutorial x dari y" dan "Langkah x dari y" dengan tombol Lanjut, Kembali, dan Lewati (keyboard: → / ← / Esc). Siswa 4 tutorial (Ruang belajar, Di dalam topik, Tutor Fisika, Makerspace), guru 1 tutorial (Panel Guru, 12 langkah). Halaman masuk dan Panel Admin tidak menampilkan tutorial maupun modul.
+- **Tombol Panduan** di kanan atas Panel Guru (setelah login) dan Menu → Panduan & Tutorial di sisi siswa: mengulang tutorial, membuka/mengunduh modul, dan mematikan tutorial otomatis.
+- **Modul Penggunaan untuk guru dan siswa (PDF)** di `assets/panduan/Modul-Penggunaan-Emergent.pdf`: alur akun, panduan guru dan siswa, petunjuk Tutor Fisika dan Makerspace AI, serta pemecahan masalah.
 - Kode: `js/tour.js`, `css/tour.css`. Status tutorial disimpan di localStorage perangkat (`emergent.tour.*`).
 
 ## Yang baru di V12

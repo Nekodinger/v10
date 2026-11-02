@@ -13,7 +13,9 @@
 
   const PDF_URL = "assets/panduan/Modul-Penggunaan-Emergent.pdf";
   const PDF_NAME = "Modul-Penggunaan-Emergent.pdf";
-  const PAGE = /teacher\.html$/.test(location.pathname) ? "teacher" : /admin\.html$/.test(location.pathname) ? "admin" : "student";
+  // Tutorial dan modul hanya untuk siswa dan guru, dan baru muncul setelah login.
+  if (/admin\.html$/.test(location.pathname)) return;
+  const PAGE = /teacher\.html$/.test(location.pathname) ? "teacher" : "student";
   const KEY = "emergent.tour.";
 
   const $ = (s) => document.querySelector(s);
@@ -33,15 +35,16 @@
     return cs.visibility !== "hidden" && cs.display !== "none";
   }
   const vis = (s) => visible($(s));
+  const loggedIn = () => (PAGE === "teacher" ? vis("#teacher-panel") : vis("#site-shell"));
   const card = (s) => () => { const el = $(s); return el ? (el.closest(".t-card") || el) : null; };
 
   /* ---------------- teks antarmuka ---------------- */
   const UI = {
     help: { id: "Panduan", en: "Guide" },
     helpTitle: { id: "Panduan & Tutorial", en: "Guide & Tutorials" },
-    helpDesc: { id: "Ulangi tutorial interaktif kapan saja, atau baca Modul Penggunaan lengkap untuk siswa, guru, dan admin.", en: "Replay the interactive tutorials any time, or read the full user guide for students, teachers and admins." },
+    helpDesc: { id: "Ulangi tutorial interaktif kapan saja, atau baca Modul Penggunaan lengkap untuk guru dan siswa.", en: "Replay the interactive tutorials any time, or read the full user guide for teachers and students." },
     pdfTitle: { id: "Modul Penggunaan Emergent (PDF)", en: "Emergent User Guide (PDF, Indonesian)" },
-    pdfDesc: { id: "Alur lengkap: akun guru dibuat admin, akun siswa dibuat guru, cara belajar, Tutor Fisika, dan Makerspace AI.", en: "Full flow: admin creates teacher accounts, teachers create student accounts, learning flow, Physics Tutor and AI Makerspace." },
+    pdfDesc: { id: "Panduan untuk guru dan siswa: akun siswa, sesi kelas, alur belajar, Tutor Fisika, dan Makerspace AI.", en: "Guide for teachers and students: student accounts, class sessions, learning flow, Physics Tutor and AI Makerspace." },
     open: { id: "Buka", en: "Open" },
     download: { id: "Unduh", en: "Download" },
     tutorialsHere: { id: "Tutorial di halaman ini", en: "Tutorials on this page" },
@@ -65,13 +68,11 @@
     welcomeEyebrow: { id: "Selamat datang", en: "Welcome" },
     welcomeTitle: {
       student: { id: "Kenalan dulu dengan Emergent", en: "Get to know Emergent" },
-      teacher: { id: "Selamat datang di Panel Guru", en: "Welcome to the Teacher Panel" },
-      admin: { id: "Selamat datang di Panel Admin", en: "Welcome to the Admin Panel" }
+      teacher: { id: "Selamat datang di Panel Guru", en: "Welcome to the Teacher Panel" }
     },
     welcomeText: {
-      student: { id: "Emergent memandu proyek fisikamu dari materi, eksperimen, latihan soal, sampai membuat simulasi sendiri bersama AI. Tutorial singkat akan menunjukkan setiap tombol penting langsung di layar.", en: "Emergent guides your physics project from lessons, experiments and practice to building your own simulation with AI. Short tutorials point out every important button right on the screen." },
-      teacher: { id: "Akun guru dibuat oleh admin. Dari panel ini Anda membuat akun siswa, membuka sesi kelas, memantau kelompok, dan menyelenggarakan kuis atau tes sumatif.", en: "Teacher accounts are created by the admin. From this panel you create student accounts, open class sessions, monitor groups and run quizzes or the summative test." },
-      admin: { id: "Admin membuat dan mengelola akun guru serta memantau pemakaian token AI. Akun siswa tidak dibuat di sini, melainkan oleh masing-masing guru.", en: "The admin creates and manages teacher accounts and monitors AI token usage. Student accounts are not created here but by each teacher." }
+      student: { id: "Kamu sudah masuk. Emergent memandu proyek fisikamu dari materi, eksperimen, latihan soal, sampai membuat simulasi sendiri bersama AI. Tutorial singkat akan menunjukkan setiap tombol penting langsung di layar.", en: "You are signed in. Emergent guides your physics project from lessons, experiments and practice to building your own simulation with AI. Short tutorials point out every important button right on the screen." },
+      teacher: { id: "Anda sudah masuk. Dari panel ini Anda membuat akun siswa, membuka sesi kelas, memantau kelompok, dan menyelenggarakan kuis atau tes sumatif.", en: "You are signed in. From this panel you create student accounts, open class sessions, monitor groups and run quizzes or the summative test." }
     },
     welcomeCount: { id: "{t} tutorial · total {s} langkah. Setiap tutorial bisa dilewati.", en: "{t} tutorials · {s} steps in total. Every tutorial can be skipped." },
     welcomeStart: { id: "Mulai tutorial", en: "Start tutorial" },
@@ -90,21 +91,6 @@
 
   const TOURS = {
     student: [
-      {
-        id: "gate", title: { id: "Halaman masuk", en: "Sign-in page" },
-        where: { id: "Halaman masuk (sebelum login)", en: "Sign-in page (before signing in)" },
-        when: () => vis("#gate-step-role"),
-        steps: [
-          { el: "#gate-role-student-btn", title: { id: "Masuk sebagai siswa", en: "Sign in as a student" },
-            body: { id: "Pilih <b>Saya siswa</b>, lalu ketik <b>nama</b> dan <b>PIN 6 digit</b>. Akun siswa <b>dibuat oleh gurumu</b> di Panel Guru, jadi kamu tidak perlu mendaftar sendiri. Minta kartu login ke guru bila belum punya.", en: "Choose <b>I am a student</b>, then type your <b>name</b> and <b>6-digit PIN</b>. Student accounts are <b>created by your teacher</b> in the Teacher Panel, so you never register yourself." } },
-          { el: "#gate-role-teacher-link", title: { id: "Pintu untuk guru", en: "Door for teachers" },
-            body: { id: "Guru masuk ke <b>Panel Guru</b> dengan nama pengguna dan kata sandi. Akun guru <b>dibuat oleh admin</b>.", en: "Teachers sign in to the <b>Teacher Panel</b> with a username and password. Teacher accounts are <b>created by the admin</b>." } },
-          { el: () => $("#gate-step-role .gate-teacher-link"), title: { id: "Kode Eksplorasi", en: "Exploration code" },
-            body: { id: "Khusus validator atau penguji yang diberi kode oleh pengembang. Siswa tidak memakai jalur ini.", en: "Only for validators or testers who received a code from the developer. Students do not use this." } },
-          { el: "#tour-help-gate", title: { id: "Panduan selalu ada di sini", en: "The guide is always here" },
-            body: { id: "Buka lagi tutorial atau <b>Modul Penggunaan (PDF)</b> kapan saja lewat tombol ini.", en: "Reopen the tutorials or the <b>user guide (PDF)</b> any time from this button." } }
-        ]
-      },
       {
         id: "home", title: { id: "Ruang belajar", en: "Learning space" },
         where: { id: "Beranda setelah masuk", en: "Home after signing in" },
@@ -198,17 +184,6 @@
     ],
     teacher: [
       {
-        id: "login", title: { id: "Masuk Panel Guru", en: "Teacher sign-in" },
-        where: { id: "Halaman masuk guru", en: "Teacher sign-in page" },
-        when: () => vis("#teacher-login-card"),
-        steps: [
-          { el: () => $("#teacher-username-input").closest("section"), title: { id: "Akun dari admin", en: "Account from the admin" },
-            body: { id: "Masukkan <b>nama pengguna</b> dan <b>kata sandi</b> yang diberikan admin. Belum punya akun? Hubungi admin Emergent.", en: "Enter the <b>username</b> and <b>password</b> from the admin. No account yet? Contact the Emergent admin." } },
-          { el: "#tour-help-btn", title: { id: "Panduan", en: "Guide" },
-            body: { id: "Tutorial dan Modul Penggunaan (PDF) bisa dibuka lagi dari tombol ini.", en: "Reopen tutorials and the user guide (PDF) from this button." } }
-        ]
-      },
-      {
         id: "panel", title: { id: "Panel Guru", en: "Teacher Panel" },
         where: { id: "Setelah masuk Panel Guru", en: "After signing in" },
         when: () => vis("#teacher-panel"),
@@ -239,36 +214,6 @@
             body: { id: "Ganti kata sandi dari admin dengan kata sandi Anda sendiri setelah masuk pertama kali.", en: "Replace the admin-issued password with your own after your first sign-in." } }
         ]
       }
-    ],
-    admin: [
-      {
-        id: "login", title: { id: "Masuk Panel Admin", en: "Admin sign-in" },
-        where: { id: "Halaman masuk admin", en: "Admin sign-in page" },
-        when: () => vis("#admin-login-card"),
-        steps: [
-          { el: () => $("#admin-username-input").closest("section") || $("#admin-login-card"), title: { id: "Satu akun admin", en: "One admin account" },
-            body: { id: "Masuk dengan akun admin. Pertama kali, kata sandinya diambil dari Environment Variable <code>ADMIN_PASSWORD</code> di Vercel.", en: "Sign in with the admin account. The first password comes from the <code>ADMIN_PASSWORD</code> environment variable in Vercel." } },
-          { el: "#tour-help-btn", title: { id: "Panduan", en: "Guide" },
-            body: { id: "Tutorial dan Modul Penggunaan (PDF) ada di sini.", en: "Tutorials and the user guide (PDF) live here." } }
-        ]
-      },
-      {
-        id: "panel", title: { id: "Panel Admin", en: "Admin Panel" },
-        where: { id: "Setelah masuk Panel Admin", en: "After signing in" },
-        when: () => vis("#admin-panel"),
-        steps: [
-          { el: card("#adm-new-name"), before: pane("teachers"), title: { id: "Buat akun guru", en: "Create teacher accounts" },
-            body: { id: "Isi nama guru dan nama pengguna. Kosongkan kata sandi agar dibuatkan otomatis, lalu berikan data masuk ke guru (kata sandi hanya tampil sekali).", en: "Enter the teacher's name and username. Leave the password empty to generate one, then give the sign-in details to the teacher (shown only once)." } },
-          { el: card("#adm-teachers-body"), before: pane("teachers"), title: { id: "Daftar akun guru", en: "Teacher accounts" },
-            body: { id: "Ubah, reset sandi, nonaktifkan, atau hapus akun. Setiap guru hanya melihat siswa, kelompok, dan tes miliknya sendiri. <b>Akun siswa dibuat oleh guru</b>, bukan admin.", en: "Edit, reset passwords, deactivate or delete. Each teacher only sees their own students, groups and tests. <b>Student accounts are created by teachers</b>, not the admin." } },
-          { el: () => $('.t-tab[data-pane="usage"]'), before: pane("teachers"), title: { id: "Pemakaian token", en: "Token usage" },
-            body: { id: "Pantau pemakaian AI per guru, per jenis (chat, simulasi, cek data), per hari, dan per akun siswa. Bisa diunduh CSV.", en: "Monitor AI usage per teacher, per kind (chat, simulation, data check), per day and per student account. Downloadable as CSV." } },
-          { el: () => $("#adm-stats") || $("#pane-usage"), before: pane("usage"), title: { id: "Ringkasan biaya AI", en: "AI cost summary" },
-            body: { id: "Total token dan perkiraan biaya untuk periode yang dipilih.", en: "Total tokens and estimated cost for the selected period." } },
-          { el: card("#adm-pw-current"), before: pane("settings"), title: { id: "Amankan akun admin", en: "Secure the admin account" },
-            body: { id: "Segera ganti kata sandi admin dari Environment Variable dengan kata sandi sendiri.", en: "Replace the environment-variable password with your own straight away." } }
-        ]
-      }
     ]
   };
 
@@ -288,8 +233,6 @@
   }
   function injectButtons() {
     if (PAGE === "student") {
-      const top = $(".gate-topbar");
-      if (top && !$("#tour-help-gate")) top.insertBefore(helpButton("tour-help-gate"), top.firstChild);
       const settings = $("#settings-btn");
       if (settings && !$("#tour-help-link")) {
         const a = document.createElement("button");
@@ -301,6 +244,7 @@
     } else {
       const act = $(".header-actions");
       if (act && !$("#tour-help-btn")) act.insertBefore(helpButton("tour-help-btn"), act.firstChild);
+      const hb = $("#tour-help-btn"); if (hb) hb.hidden = !loggedIn();
     }
   }
 
@@ -562,6 +506,7 @@
   function tick() {
     injectButtons();
     if (store.get("disabled") === "1") return;
+    if (!loggedIn()) { if (active) end(false); closeModal(); return; }
     if (!store.get(PAGE + ".welcome")) {
       if (!$("#tour-modal") && !active) openWelcome();
       return;
