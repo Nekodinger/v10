@@ -34,6 +34,13 @@ Setiap guru hanya melihat siswa, kelompok, sesi, kuis, dan tes miliknya sendiri.
 - Guru bisa mengganti ketua dan melepas kunci perangkat bila ketua pindah perangkat.
 - **AI hanya di kelas.** Tutor Fisika, Makerspace, dan pemeriksaan data eksperimen oleh AI hanya berjalan saat siswa berada di sesi kelas yang aktif (diperiksa di server). Mode mandiri tidak memakai AI sama sekali, jadi kuota API tidak terpakai di luar kelas. Kode eksplorasi (validator) tetap bisa mencoba semua fitur, jadi jangan sebarkan kode itu.
 
+## Yang baru di V13
+
+- **Tutorial interaktif (spotlight).** Saat halaman pertama kali dibuka, muncul jendela sambutan berisi daftar tutorial dan tombol Modul PDF. Bagian yang dibahas disorot, bagian lain diredupkan; kartu tutorial menampilkan "Tutorial x dari y" dan "Langkah x dari y" dengan tombol Lanjut, Kembali, dan Lewati (keyboard: → / ← / Esc). Siswa 5 tutorial (Halaman masuk, Ruang belajar, Di dalam topik, Tutor Fisika, Makerspace), guru 2, admin 2. Setiap tutorial berjalan otomatis saat bagiannya pertama kali muncul dan tidak muncul lagi setelah selesai atau dilewati.
+- **Tombol Panduan** di halaman masuk, Panel Guru, dan Panel Admin, serta Menu → Panduan & Tutorial di sisi siswa: mengulang tutorial, membuka/mengunduh modul, dan mematikan tutorial otomatis.
+- **Modul Penggunaan (PDF)** di `assets/panduan/Modul-Penggunaan-Emergent.pdf`: alur akun (admin → guru → siswa), panduan tiap peran, petunjuk Tutor Fisika dan Makerspace AI, serta pemecahan masalah.
+- Kode: `js/tour.js`, `css/tour.css`. Status tutorial disimpan di localStorage perangkat (`emergent.tour.*`).
+
 ## Yang baru di V12
 
 - Lembar Rencana Proyek Kelompok langsung di Emergent. Tombol Rencana Proyek muncul di pojok kanan bawah setelah siswa mencapai tab Eksperimen. Semua anggota kelompok mengisi satu lembar yang sama: setiap kolom tersimpan otomatis, perubahan anggota lain muncul dalam beberapa detik, dan nama anggota yang sedang mengisi sebuah kolom ditampilkan. Bila dua anggota mengubah kolom yang sama, simpanan dengan versi lama ditolak server sehingga tidak ada isian yang tertimpa diam-diam.

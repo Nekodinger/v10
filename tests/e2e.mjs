@@ -24,8 +24,10 @@ const api = async (body) => (await fetch(BASE + "/api/backend", { method: "POST"
 const browser = await chromium.launch();
 let passed = 0;
 const pageErrors = [];
-async function newPage(viewport) {
+async function newPage(viewport, opts) {
   const ctx = await browser.newContext({ viewport: viewport || { width: 1360, height: 900 }, acceptDownloads: true });
+  // Tutorial interaktif dimatikan di uji alur; diuji tersendiri (opts.tour)
+  if (!(opts && opts.tour)) await ctx.addInitScript(() => { try { localStorage.setItem("emergent.tour.disabled", "1"); } catch (e) { /* abaikan */ } });
   const pg = await ctx.newPage();
   // CDN tidak bisa diakses dari lingkungan tes: MathJax dilayani dari node_modules
   // (versi sama dengan yang dimuat index.html), font Google diblokir (fallback).
@@ -829,6 +831,51 @@ await step("Validator: explore code via gate link", async () => {
   await vp.click("#gate-guest-code-btn");
   await vp.waitForSelector("#site-shell:not([hidden])");
   await vp.close();
+});
+await step("Interactive tutorial: welcome, spotlight steps with counter, skip, Guide, PDF", async () => {
+  const pdf = await fetch(BASE + "/assets/panduan/Modul-Penggunaan-Emergent.pdf");
+  assert.equal(pdf.status, 200);
+  assert.equal(Buffer.from(await pdf.arrayBuffer()).slice(0, 4).toString(), "%PDF");
+  const p = await newPage(null, { tour: true });
+  await p.goto(BASE + "/");
+  await p.waitForSelector("#tour-modal.tour-welcome");
+  assert.match(await p.textContent("#tour-modal"), /5 tutorial/);
+  assert.equal(await p.getAttribute('#tour-modal [data-pdf]', "href"), "assets/panduan/Modul-Penggunaan-Emergent.pdf");
+  await p.click("#tour-modal [data-start]");
+  await p.waitForSelector("#tour-root .tour-card [data-next]");
+  assert.match(await p.textContent(".tour-count"), /Langkah 1 dari 4/);
+  assert.match(await p.textContent(".tour-chip"), /Tutorial 1 dari 5/);
+  const sp = await p.locator(".tour-spot").boundingBox(), tg = await p.locator("#gate-role-student-btn").boundingBox();
+  assert.ok(sp.x <= tg.x && sp.y <= tg.y && sp.x + sp.width >= tg.x + tg.width, "spotlight covers the target");
+  await p.click("#tour-root [data-next]");
+  await p.waitForFunction(() => /Langkah 2 dari 4/.test(document.querySelector(".tour-count").textContent));
+  await p.click("#tour-root [data-back]");
+  await p.waitForFunction(() => /Langkah 1 dari 4/.test(document.querySelector(".tour-count").textContent));
+  await p.click("#tour-root .tour-actions [data-skip]");
+  await p.waitForSelector("#tour-root", { state: "detached" });
+  assert.equal(await p.evaluate(() => localStorage.getItem("emergent.tour.student.gate")), "skipped");
+  // tidak muncul lagi setelah dimuat ulang; bisa diulang dari Panduan
+  await p.reload(); await p.waitForTimeout(1600);
+  assert.equal(await p.locator("#tour-root, #tour-modal").count(), 0);
+  await p.click("#tour-help-gate");
+  await p.waitForSelector("#tour-modal.tour-help");
+  await p.click('#tour-modal [data-tour="gate"]');
+  await p.waitForSelector("#tour-root .tour-card");
+  await p.keyboard.press("Escape");
+  await p.waitForSelector("#tour-root", { state: "detached" });
+  // guru: tutorial panel berpindah pane otomatis
+  const tp = await newPage(null, { tour: true });
+  await tp.goto(BASE + "/teacher.html");
+  await tp.waitForSelector("#tour-modal.tour-welcome");
+  await tp.click("#tour-modal [data-skip]");
+  await tp.evaluate(() => { localStorage.removeItem("emergent.tour.off"); localStorage.setItem("emergent.tour.teacher.login", "done"); });
+  await tp.fill("#teacher-username-input", "guru.uji"); await tp.fill("#teacher-password-input", "sandi-guru-uji"); await tp.click("#teacher-login-btn");
+  await tp.waitForSelector("#tour-root .tour-card", { timeout: 8000 });
+  assert.match(await tp.textContent(".tour-count"), /dari 12/);
+  for (let i = 0; i < 2; i++) { await tp.click("#tour-root [data-next]"); await tp.waitForTimeout(450); }
+  assert.ok(await tp.isVisible("#pane-accounts"), "tour opened Group Management");
+  await tp.screenshot({ path: path.join(SHOTS, "25-tour-teacher.png") });
+  await p.context().close(); await tp.context().close();
 });
 await step("no uncaught page errors", async () => {
   assert.deepEqual(pageErrors, []);
