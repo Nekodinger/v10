@@ -203,7 +203,7 @@ window.SlideViewer = (function () {
 
     function onKey(e) {
       if (!document.body.contains(viewer)) return;
-      const panel = viewer.closest(".tab-panel");
+      const panel = viewer.closest(".tab-panel, .t-pane");
       if (panel && !panel.classList.contains("active")) return;
       const tag = (document.activeElement && document.activeElement.tagName) || "";
       if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;

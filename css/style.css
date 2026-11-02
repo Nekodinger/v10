@@ -1330,3 +1330,29 @@ body.plan-open { overflow: hidden; }
   .plan-sched th:nth-child(1), .plan-sched td:nth-child(1) { width: 18%; }
 }
 @media print { .plan-toggle-btn, .plan-overlay { display: none !important; } }
+
+/* ---------- 05 Presentation (Panel Guru) ---------- */
+.t-tabs-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 860px) {
+  .t-tabs-5 { grid-template-columns: 1fr 1fr; }
+  .t-tabs-5 > .t-tab:last-child { grid-column: 1 / -1; }
+}
+.present-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
+.present-head h3 { margin: 0 0 4px; }
+.present-head .t-card-desc { margin: 0; max-width: 760px; }
+.present-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.present-tools .is-on { background: var(--coral); color: #fff; border-color: var(--coral); }
+.present-colors { display: inline-flex; gap: 5px; align-items: center; padding: 0 4px; }
+.present-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line-2); cursor: pointer; padding: 0; }
+.present-swatch.on { box-shadow: 0 0 0 2px var(--indigo); }
+.present-timer { font: 600 14px var(--mono); color: var(--navy); background: var(--indigo-mist); border: 1px solid var(--line-2); border-radius: 30px; padding: 6px 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.present-timer.is-on { background: var(--indigo); color: #fff; border-color: var(--indigo); }
+.present-ink { position: absolute; inset: 0; z-index: 6; pointer-events: none; touch-action: none; }
+.deck-stage-wrap.pen-on .present-ink { pointer-events: auto; cursor: crosshair; }
+.present-code { position: absolute; inset: 0; z-index: 8; container-type: size; display: flex; align-items: center; justify-content: center; background: rgba(11, 16, 74, .72); cursor: pointer; }
+.present-code-card { background: #fff; border-radius: 3vmin; padding: 3.5% 6%; text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, .3); }
+.present-code-card span { display: block; font: 600 clamp(14px, 2vw, 28px) var(--head); font-size: 4.2cqh; color: var(--coral-ink); letter-spacing: .08em; text-transform: uppercase; }
+.present-code-card b { display: block; font: 800 clamp(40px, 7vw, 120px)/1.05 var(--mono); font-size: min(22cqh, 11cqw); letter-spacing: .12em; color: var(--navy); margin: .1em 0; }
+.present-code-card small { display: block; font-size: clamp(12px, 1.4vw, 20px); font-size: 3.4cqh; color: var(--muted); }
+.present-code-card.is-empty small { font-size: 4.4cqh; color: var(--navy); max-width: 32ch; }
+#pane-present .deck-viewer:fullscreen .deck-toolbar { padding: 8px 12px; }

@@ -135,6 +135,7 @@ document.querySelectorAll(".t-tab").forEach(btn => btn.addEventListener("click",
   if (btn.dataset.pane === "records") loadOverview();
   if (btn.dataset.pane === "accounts" && typeof loadAccounts === "function") loadAccounts();
   if (btn.dataset.pane === "quiz") { loadQuizHistory(); if (typeof TeacherSumatif !== "undefined") TeacherSumatif.onShow(); }
+  if (btn.dataset.pane === "present" && window.TeacherPresent) TeacherPresent.onShow();
 }));
 
 /* ---------------- 01 Sesi kelas ---------------- */

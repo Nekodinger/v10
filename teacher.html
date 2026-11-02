@@ -55,11 +55,12 @@
   <div id="teacher-panel" hidden>
     <div class="t-whoami"><span class="muted small" data-i18n="tl.signedinas">Masuk sebagai</span> <strong id="teacher-whoami">-</strong>
       <button type="button" class="link-btn small" id="teacher-changepw-btn" data-i18n="tl.changepw">Ganti kata sandi</button></div>
-    <nav class="t-tabs t-tabs-4" role="tablist">
+    <nav class="t-tabs t-tabs-5" role="tablist">
       <button type="button" class="t-tab active" data-pane="session"><span class="tab-num">01</span><span data-i18n="teacher.tab.session">Class Management</span></button>
       <button type="button" class="t-tab" data-pane="accounts"><span class="tab-num">02</span><span data-i18n="teacher.tab.accounts">Group Management</span></button>
       <button type="button" class="t-tab" data-pane="records"><span class="tab-num">03</span><span data-i18n="teacher.tab.records">Group Monitoring</span></button>
       <button type="button" class="t-tab" data-pane="quiz"><span class="tab-num">04</span><span data-i18n="teacher.tab.quiz">Quiz</span></button>
+      <button type="button" class="t-tab" data-pane="present"><span class="tab-num">05</span><span data-i18n="teacher.tab.present">Presentation</span></button>
     </nav>
 
     <!-- 01 Sesi kelas -->
@@ -334,6 +335,18 @@ Jawaban: kaidah tangan kiri Fleming</pre>
         </div>
       </div>
     </section>
+
+    <!-- 05 Presentasi: slide Materi untuk mengajar langsung dari Panel Guru -->
+    <section class="t-pane" id="pane-present">
+      <div class="t-card present-head">
+        <div>
+          <h3 data-i18n="pr.title">Slide presentasi</h3>
+          <p class="t-card-desc" data-i18n="pr.desc">Slide yang sama dengan tab Materi siswa, lengkap dengan catatan mengajar. Tampilkan di proyektor dengan Layar penuh; pena dan kode kelas tetap bisa dipakai di layar penuh.</p>
+        </div>
+        <label class="qz-topic"><span data-i18n="quiz.topic.label">Topik</span><select id="present-topic-select"></select></label>
+      </div>
+      <div id="present-deck"></div>
+    </section>
   </div>
 </main>
 <footer class="site-footer"><div class="footer-bottom" data-i18n="footer.copy">Emergent · Platform PjBL &amp; Generative AI untuk Cambridge 9702</div></footer>
@@ -411,6 +424,9 @@ Jawaban: kaidah tangan kiri Fleming</pre>
 <script src="js/teacher-accounts.js" defer></script>
 <script src="js/sumatif-render.js" defer></script>
 <script src="js/teacher-sumatif.js" defer></script>
+<script src="js/materi-slides.js" defer></script>
+<script src="js/slides.js" defer></script>
+<script src="js/teacher-present.js" defer></script>
 <script src="js/tour.js" defer></script>
 </body>
 </html>

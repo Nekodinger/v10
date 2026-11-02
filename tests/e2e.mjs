@@ -594,7 +594,7 @@ await step("Teacher panel: records, detail with LKPD answers, Excel & PDF export
   const [d3] = await Promise.all([tp.waitForEvent("download"), tp.click("#export-pdf-btn")]);
   await d3.saveAs(path.join(SHOTS, "rekap.pdf"));
   // Tab baru: Class Management / Group Management / Group Monitoring / Quiz; tidak ada AI generate & usage
-  assert.deepEqual(await tp.$$eval(".t-tab span:not(.tab-num)", xs => xs.map(x => x.textContent)), ["Class Management", "Group Management", "Group Monitoring", "Quiz"]);
+  assert.deepEqual(await tp.$$eval(".t-tab span:not(.tab-num)", xs => xs.map(x => x.textContent)), ["Class Management", "Group Management", "Group Monitoring", "Quiz", "Presentation"]);
   assert.equal(await tp.locator("#quiz-generate-btn, .t-tab[data-pane=usage]").count(), 0);
   await tp.click('.t-tab[data-pane="quiz"]');
   await tp.waitForSelector("#quiz-question-list .quiz-question-item");
@@ -832,6 +832,40 @@ await step("Validator: explore code via gate link", async () => {
   await vp.waitForSelector("#site-shell:not([hidden])");
   await vp.close();
 });
+await step("Teacher Presentation: slides with notes, pen, class code overlay, stopwatch", async () => {
+  const tp = await newPage({ width: 1400, height: 900 });
+  await teacherLoginUI(tp);
+  await api({ mode: "teacher_session", teacherToken: TT, action: "start", topicId: "magnetic-fields", tabIndex: 0 });
+  await tp.reload(); await tp.waitForSelector("#teacher-has-session:not([hidden])", { timeout: 10000 });
+  const code = (await tp.textContent("#teacher-code-display")).trim();
+  await tp.click('.t-tab[data-pane="present"]');
+  await tp.waitForSelector("#pane-present .deck-slide");
+  assert.equal(await tp.textContent("#pane-present .deck-counter"), "01 / 31");
+  assert.ok(await tp.isVisible("#pane-present .deck-notes"), "teaching notes open by default");
+  await tp.click('#pane-present [data-act="next"]');
+  const ctr = await tp.textContent("#pane-present .deck-counter");
+  await tp.click('#pane-present [data-pr="pen"]');
+  assert.ok(await tp.isVisible('#pane-present [data-pr="clear"]'));
+  const cb = await tp.locator("#pane-present .present-ink").boundingBox();
+  await tp.mouse.move(cb.x + 100, cb.y + 100); await tp.mouse.down(); await tp.mouse.move(cb.x + 300, cb.y + 160, { steps: 6 }); await tp.mouse.up();
+  assert.ok(await tp.evaluate(() => { const c = document.querySelector("#pane-present .present-ink"); const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; for (let i = 3; i < d.length; i += 4) if (d[i]) return true; return false; }), "pen draws on the slide");
+  assert.equal(await tp.textContent("#pane-present .deck-counter"), ctr, "drawing does not change slide");
+  await tp.click('#pane-present [data-pr="pen"]');
+  await tp.click('#pane-present [data-pr="code"]');
+  assert.equal((await tp.textContent("#pane-present .present-code b")).trim(), code);
+  await tp.screenshot({ path: path.join(SHOTS, "26-teacher-present.png") });
+  await tp.click("#pane-present .present-code");
+  await tp.waitForSelector("#pane-present .present-code", { state: "hidden" });
+  await tp.click('#pane-present [data-pr="timer"]');
+  await tp.waitForFunction(() => /^00:0[1-9]$/.test(document.querySelector('#pane-present [data-pr="timer"]').textContent), null, { timeout: 5000 });
+  // panah di pane lain tidak memindahkan slide
+  await tp.click('.t-tab[data-pane="session"]');
+  await tp.keyboard.press("ArrowRight");
+  await tp.click('.t-tab[data-pane="present"]');
+  assert.equal(await tp.textContent("#pane-present .deck-counter"), ctr, "arrow keys ignored while another pane is open");
+  await api({ mode: "teacher_session", teacherToken: TT, action: "end" });
+  await tp.context().close();
+});
 await step("Interactive tutorial: only after sign-in (student & teacher), counter, skip, Guide, PDF; none for admin", async () => {
   const pdf = await fetch(BASE + "/assets/panduan/Modul-Penggunaan-Emergent.pdf");
   assert.equal(pdf.status, 200);
@@ -875,7 +909,7 @@ await step("Interactive tutorial: only after sign-in (student & teacher), counte
   await tp.waitForSelector("#tour-modal.tour-welcome", { timeout: 8000 });
   await tp.click("#tour-modal [data-start]");
   await tp.waitForSelector("#tour-root .tour-card", { timeout: 8000 });
-  assert.match(await tp.textContent(".tour-count"), /dari 12/);
+  assert.match(await tp.textContent(".tour-count"), /dari 13/);
   for (let i = 0; i < 2; i++) { await tp.click("#tour-root [data-next]"); await tp.waitForTimeout(450); }
   assert.ok(await tp.isVisible("#pane-accounts"), "tour opened Group Management");
   await tp.screenshot({ path: path.join(SHOTS, "25-tour-teacher.png") });

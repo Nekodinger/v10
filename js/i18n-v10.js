@@ -10,6 +10,9 @@ Object.assign(I18N_STRINGS, {
   "teacher.tab.accounts": { id: "Group Management", en: "Group Management" },
   "teacher.tab.records": { id: "Group Monitoring", en: "Group Monitoring" },
   "teacher.tab.quiz": { id: "Quiz", en: "Quiz" },
+  "teacher.tab.present": { id: "Presentation", en: "Presentation" },
+  "pr.title": { id: "Slide presentasi", en: "Presentation slides" },
+  "pr.desc": { id: "Slide yang sama dengan tab Materi siswa, lengkap dengan catatan mengajar. Tampilkan di proyektor dengan Layar penuh; pena dan kode kelas tetap bisa dipakai di layar penuh.", en: "The same slides as the students' Lessons tab, with teaching notes. Project them with Full screen; the pen and the class code still work in full screen." },
 
   /* ---------- login guru ---------- */
   "tl.login.desc": { id: "Masuk dengan nama pengguna dan kata sandi akun guru Anda. Akun guru dibuat dan dikelola oleh admin Emergent.", en: "Sign in with your teacher username and password. Teacher accounts are created and managed by the Emergent admin." },
