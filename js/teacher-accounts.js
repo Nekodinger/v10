@@ -253,7 +253,7 @@ document.getElementById("acc-print-btn").addEventListener("click", () => {
   w.document.write(`<!doctype html><html lang="${getLang()}"><head><meta charset="utf-8"><title>${esc(t("acc.print.title"))}</title>
     <style>
       @page { size: A4; margin: 10mm; }
-      body { font-family: "Inter", "Segoe UI", Arial, sans-serif; color: #0B104A; margin: 0; }
+      body { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; color: #0B104A; margin: 0; }
       .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; }
       .card { border: 1.5px dashed #9AA0C8; border-radius: 10px; padding: 4mm 5mm; break-inside: avoid; }
       .top { display: flex; align-items: center; gap: 3mm; margin-bottom: 3mm; }
