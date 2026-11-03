@@ -57,7 +57,7 @@
     $("ts-reset-btn").hidden = editing || isDefault;
     $("ts-paper-heading").textContent = editing ? t("ts.editor.heading") : t("ts.preview");
     const box = $("ts-paper");
-    if (editing) { box.innerHTML = editorHtml(); return; }
+    if (editing) { box.innerHTML = editorHtml(); if (window.MathInput) window.MathInput.refresh(box); return; }
     const total = R.totalMarks(doc);
     box.innerHTML = `<div class="ts-preview-bar"><label class="acc-check small"><input type="checkbox" id="ts-showkeys" ${showKeys ? "checked" : ""}> <span>${escapeHtml(t("ts.showkeys"))}</span></label><span class="spacer"></span><span class="pill">${escapeHtml(t("ts.maxscore", { n: total }))}</span></div>` +
       R.paper(Object.assign({}, doc, { durationMin: parseInt($("ts-duration").value, 10) || doc.durationMin }), { mode: "preview", showKeys });
@@ -75,6 +75,9 @@
     const input = o.area
       ? `<textarea rows="${o.rows || 2}" ${attrs}>${escapeHtml(value)}</textarea>`
       : `<input type="${o.num ? "number" : "text"}" ${o.num ? `min="0" max="20" step="0.5"` : ""} value="${escapeHtml(value)}" ${attrs}>`;
+    // Kolom yang boleh berisi rumus memakai alat yang sama dengan jawaban siswa
+    // di Tes Sumatif: tombol Persamaan (MathLive) + pratinjau LaTeX.
+    if (o.math && window.MathInput) return `<div class="ts-ed-field ${o.cls || ""}"><span>${escapeHtml(label)}</span>${window.MathInput.wrap(input, !o.area)}</div>`;
     return `<label class="ts-ed-field ${o.cls || ""}"><span>${escapeHtml(label)}</span>${input}</label>`;
   }
   function itemTools(si, ii, n) {
@@ -87,23 +90,23 @@
   function itemEditor(it, si, ii, n) {
     const p = `s.${si}.i.${ii}`;
     let html = `<div class="ts-ed-item"><div class="ts-ed-item-head"><strong>${escapeHtml(it.id)}</strong> <span class="pill">${escapeHtml(typeName(it.type))}</span> <span class="muted small">${escapeHtml(t("ts.ed.marks", { n: R.marksOf(it) }))}</span>${itemTools(si, ii, n)}</div>`;
-    html += fld(t("ts.ed.stem"), p + ".stem", it.stem, { area: true, rows: 3 });
+    html += fld(t("ts.ed.stem"), p + ".stem", it.stem, { area: true, rows: 3, math: true });
     if (it.type === "mcq") {
       html += `<div class="ts-ed-opts">` + it.options.map((op, oi) => `<div class="ts-ed-opt">
           <label class="ts-ed-correct" title="${escapeHtml(t("ts.ed.correct"))}"><input type="radio" name="ed-c-${si}-${ii}" data-ed="${p}.correct" value="${oi}" ${it.correct === oi ? "checked" : ""}> ${String.fromCharCode(65 + oi)}</label>
-          <input type="text" value="${escapeHtml(op)}" data-ed="${p}.options.${oi}">
+          ${window.MathInput ? window.MathInput.wrap(`<input type="text" value="${escapeHtml(op)}" data-ed="${p}.options.${oi}">`, true) : `<input type="text" value="${escapeHtml(op)}" data-ed="${p}.options.${oi}">`}
           <button type="button" class="icon-mini danger" data-act="opt-del" data-s="${si}" data-i="${ii}" data-o="${oi}" ${it.options.length <= 2 ? "disabled" : ""}>✕</button></div>`).join("") +
         `<button type="button" class="btn btn-ghost btn-small" data-act="opt-add" data-s="${si}" data-i="${ii}" ${it.options.length >= 6 ? "disabled" : ""}>${escapeHtml(t("ts.ed.addopt"))}</button></div>`;
-      html += `<div class="ts-ed-row">${fld(t("ts.ed.marksfield"), p + ".marks", it.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.expl"), p + ".explanation", it.explanation, { area: true, cls: "grow" })}</div>`;
+      html += `<div class="ts-ed-row">${fld(t("ts.ed.marksfield"), p + ".marks", it.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.expl"), p + ".explanation", it.explanation, { area: true, cls: "grow", math: true })}</div>`;
     } else if (it.type === "structured") {
       const tbl = (it.table || []).map(r => r.join(" | ")).join("\n");
       html += `<label class="ts-ed-field"><span>${escapeHtml(t("ts.ed.table"))}</span><textarea rows="3" data-ed="${p}.table" placeholder="${escapeHtml(t("ts.ed.table.ph"))}">${escapeHtml(tbl)}</textarea></label>`;
       html += it.parts.map((pt, pi) => `<div class="ts-ed-part"><div class="ts-ed-item-head"><strong>${escapeHtml(pt.id)}.</strong><span class="ts-ed-tools"><button type="button" class="icon-mini danger" data-act="part-del" data-s="${si}" data-i="${ii}" data-p="${pi}" ${it.parts.length <= 1 ? "disabled" : ""}>✕</button></span></div>
-          ${fld(t("ts.ed.parttext"), `${p}.parts.${pi}.text`, pt.text, { area: true })}
-          <div class="ts-ed-row">${fld(t("ts.ed.marksfield"), `${p}.parts.${pi}.marks`, pt.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.key"), `${p}.parts.${pi}.key`, pt.key, { area: true, cls: "grow" })}</div></div>`).join("");
+          ${fld(t("ts.ed.parttext"), `${p}.parts.${pi}.text`, pt.text, { area: true, math: true })}
+          <div class="ts-ed-row">${fld(t("ts.ed.marksfield"), `${p}.parts.${pi}.marks`, pt.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.key"), `${p}.parts.${pi}.key`, pt.key, { area: true, cls: "grow", math: true })}</div></div>`).join("");
       html += `<button type="button" class="btn btn-ghost btn-small" data-act="part-add" data-s="${si}" data-i="${ii}" ${it.parts.length >= 10 ? "disabled" : ""}>${escapeHtml(t("ts.ed.addpart"))}</button>`;
     } else {
-      html += `<div class="ts-ed-row">${fld(t("ts.ed.marksfield"), p + ".marks", it.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.key"), p + ".key", it.key, { area: true, rows: 3, cls: "grow" })}</div>`;
+      html += `<div class="ts-ed-row">${fld(t("ts.ed.marksfield"), p + ".marks", it.marks, { num: true, cls: "narrow" })}${fld(t("ts.ed.key"), p + ".key", it.key, { area: true, rows: 3, cls: "grow", math: true })}</div>`;
     }
     return html + `</div>`;
   }
@@ -111,12 +114,12 @@
     const d = draft;
     let html = `<div class="ts-editor"><p class="muted small">${escapeHtml(t("ts.ed.tip"))}</p>`;
     html += fld(t("ts.ed.title"), "title", d.title);
-    html += fld(t("ts.ed.instructions"), "instructions", d.instructions, { area: true, rows: 3 });
+    html += fld(t("ts.ed.instructions"), "instructions", d.instructions, { area: true, rows: 3, math: true });
     d.sections.forEach((S, si) => {
       html += `<fieldset class="ts-ed-section"><legend>${escapeHtml(t("ts.ed.section", { id: S.id }))}
           <span class="ts-ed-tools"><button type="button" class="icon-mini danger" data-act="sec-del" data-s="${si}" title="${escapeHtml(t("ts.ed.delsec"))}" ${d.sections.length <= 1 ? "disabled" : ""}>✕</button></span></legend>
         <div class="ts-ed-row">${fld(t("ts.ed.sectitle"), `s.${si}.title`, S.title, { cls: "grow" })}</div>
-        ${fld(t("ts.ed.secnote"), `s.${si}.note`, S.note, { area: true })}
+        ${fld(t("ts.ed.secnote"), `s.${si}.note`, S.note, { area: true, math: true })}
         ${S.items.map((it, ii) => itemEditor(it, si, ii, S.items.length)).join("")}
         <div class="qz-add-row"><span class="muted small">${escapeHtml(t("ts.ed.additem"))}</span>
           <button type="button" class="btn btn-ghost btn-small" data-act="item-add" data-type="mcq" data-s="${si}">+ ${escapeHtml(t("ts.type.mcq"))}</button>
@@ -192,6 +195,7 @@
     status(t("ts.unsaved"), true);
     const y = window.scrollY;
     $("ts-paper").innerHTML = editorHtml();
+    if (window.MathInput) window.MathInput.refresh($("ts-paper"));
     window.scrollTo(0, y);
   });
 

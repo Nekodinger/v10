@@ -617,6 +617,8 @@ document.getElementById("quiz-question-list").addEventListener("change", e => {
   if (!q) return;
   if (e.target.checked) quizSelectedIds.add(q.id); else quizSelectedIds.delete(q.id);
 });
+// Kolom soal kuis memakai alat persamaan + pratinjau yang sama dengan Tes Sumatif siswa (js/math-input.js).
+function mathField(html, compact) { return window.MathInput ? window.MathInput.wrap(html, compact) : html; }
 function latexToolbarHtml(targetId) {
   const syms = ["Δ", "θ", "ω", "μ", "π", "λ", "√", "±", "×", "→"];
   return `<div class="quiz-latex-toolbar">${syms.map(s => `<button type="button" class="quiz-latex-btn" data-target="${targetId}" data-kind="${escapeAttrT(s)}">${s}</button>`).join("")}${[["math", "$x$"], ["sup", "x²"], ["sub", "xₙ"], ["frac", "a/b"]].map(([k, l]) => `<button type="button" class="quiz-latex-btn" data-target="${targetId}" data-kind="${k}">${l}</button>`).join("")}</div>`;
@@ -642,20 +644,9 @@ document.addEventListener("click", e => {
   if (e.target && e.target.id === "qz-ed-save-next") saveQuizEditor(true);
   if (e.target && e.target.id === "qz-ed-cancel") closeQuizEditor();
 });
-document.addEventListener("input", e => { if (e.target && e.target.id === "qz-ed-question") updateQuizPreview(); });
 document.addEventListener("change", e => {
   if (e.target && e.target.id === "qz-ed-type") { const w = document.getElementById("qz-ed-options-wrap"); if (w) w.hidden = e.target.value !== "mcq"; }
 });
-let quizPreviewTimer = null;
-function updateQuizPreview() {
-  clearTimeout(quizPreviewTimer);
-  quizPreviewTimer = setTimeout(() => {
-    const ta = document.getElementById("qz-ed-question"), pv = document.getElementById("qz-ed-question-preview");
-    if (!ta || !pv) return;
-    pv.textContent = ta.value;
-    typeset(pv);
-  }, 250);
-}
 function openQuizEditor(index, presetType) {
   quizEditingIndex = typeof index === "number" ? index : null;
   const ex = quizEditingIndex !== null ? quizBank[quizEditingIndex] : null;
@@ -664,15 +655,14 @@ function openQuizEditor(index, presetType) {
   c.innerHTML = `<div class="quiz-editor-box">
     <h4>${quizEditingIndex !== null ? t("quiz.editor.title.edit") : t("quiz.editor.title.add")}</h4>
     <label><span>${t("quiz.editor.type.label")}</span><select id="qz-ed-type">${["mcq", "short", "essay"].map(k => `<option value="${k}" ${d.type === k ? "selected" : ""}>${t("quiz.type." + k)}</option>`).join("")}</select></label>
-    <label><span>${t("quiz.editor.question.label")}</span></label>${latexToolbarHtml("qz-ed-question")}<textarea id="qz-ed-question" rows="3">${escapeHtml(d.question)}</textarea>
-    <p class="muted small" style="margin:8px 0 4px">${t("quiz.editor.preview.label")}</p><div class="quiz-editor-preview" id="qz-ed-question-preview"></div>
+    <label for="qz-ed-question"><span>${t("quiz.editor.question.label")}</span></label>${mathField(latexToolbarHtml("qz-ed-question") + `<textarea id="qz-ed-question" rows="3">${escapeHtml(d.question)}</textarea>`)}
     <div id="qz-ed-options-wrap" ${d.type === "mcq" ? "" : "hidden"}><p class="muted small">${t("quiz.editor.correct.label")}</p>
-      ${[0, 1, 2, 3].map(i => `<div class="quiz-option-row"><input type="radio" name="qz-ed-correct" value="${i}" ${d.correct === i ? "checked" : ""}><input type="text" class="qz-ed-option" value="${escapeAttrT((d.options || [])[i] || "")}" placeholder="${t("quiz.optionletter", { letter: String.fromCharCode(65 + i) })}"></div>`).join("")}</div>
-    <label><span>${t("quiz.editor.modelanswer.label")}</span><textarea id="qz-ed-modelanswer" rows="2">${escapeHtml(d.modelAnswer || "")}</textarea></label>
+      ${[0, 1, 2, 3].map(i => `<div class="quiz-option-row"><input type="radio" name="qz-ed-correct" value="${i}" ${d.correct === i ? "checked" : ""}>${mathField(`<input type="text" class="qz-ed-option" value="${escapeAttrT((d.options || [])[i] || "")}" placeholder="${t("quiz.optionletter", { letter: String.fromCharCode(65 + i) })}">`, true)}</div>`).join("")}</div>
+    <label for="qz-ed-modelanswer"><span>${t("quiz.editor.modelanswer.label")}</span></label>${mathField(`<textarea id="qz-ed-modelanswer" rows="2">${escapeHtml(d.modelAnswer || "")}</textarea>`)}
     <div class="quiz-editor-actions"><button type="button" id="qz-ed-save" class="btn btn-primary btn-small">${t("quiz.editor.save.btn")}</button>${quizEditingIndex === null ? `<button type="button" id="qz-ed-save-next" class="btn btn-secondary btn-small">${t("qz.savenext")}</button>` : ""}<button type="button" id="qz-ed-cancel" class="btn btn-ghost btn-small">${t("quiz.editor.cancel.btn")}</button></div>
     <p class="muted small">${t("qz.editor.tip")}</p>
   </div>`;
-  updateQuizPreview();
+  if (window.MathInput) window.MathInput.refresh(c);
   c.scrollIntoView({ behavior: "smooth", block: "center" });
   const q = document.getElementById("qz-ed-question"); if (q) q.focus();
 }

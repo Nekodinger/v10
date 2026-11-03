@@ -169,6 +169,7 @@ Object.assign(I18N_STRINGS, {
   "ts.stu.ink.grow": { id: "Tambah ruang", en: "More space" },
   "ts.stu.ink.clear.confirm": { id: "Hapus semua tulisan tangan di kotak ini?", en: "Clear all handwriting in this box?" },
   "ts.stu.ink.hide.confirm": { id: "Tutup kanvas akan menghapus tulisan tangan di kotak ini. Lanjutkan?", en: "Closing the canvas removes the handwriting in this box. Continue?" },
+  "mi.hint": { id: "Tulis rumus di antara $...$ atau klik Persamaan. Pratinjau muncul di bawah kolom.", en: "Write formulas between $...$ or click Equation. A preview appears below the field." },
   "ts.stu.eq.title": { id: "Tambah persamaan", en: "Insert an equation" },
   "ts.stu.eq.desc": { id: "Ketik rumus seperti di kalkulator: / untuk pecahan, ^ untuk pangkat, _ untuk indeks. Di tablet, papan ketik rumus muncul otomatis.", en: "Type the formula like on a calculator: / for fractions, ^ for powers, _ for subscripts. On tablets the maths keyboard appears automatically." },
   "ts.stu.eq.insert": { id: "Sisipkan", en: "Insert" },

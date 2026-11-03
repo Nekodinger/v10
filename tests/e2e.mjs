@@ -601,6 +601,10 @@ await step("Teacher panel: records, detail with LKPD answers, Excel & PDF export
   const nQ = await tp.locator("#quiz-question-list .quiz-question-item").count();
   await tp.click('[data-qadd="mcq"]');
   await tp.fill("#qz-ed-question", "Arah gaya pada kawat ditentukan dengan kaidah ....");
+  // Editor kuis memakai alat persamaan + pratinjau yang sama dengan Tes Sumatif siswa
+  assert.equal(await tp.locator(".quiz-editor-box .mi-wrap [data-mi-eq]").count(), 6, "equation button on question, 4 options, model answer");
+  await tp.fill("#qz-ed-modelanswer", "Gaya $F = BIL$ tegak lurus arus dan medan.");
+  await tp.waitForSelector(".quiz-editor-box .mi-preview mjx-container", { timeout: 10000 });
   const opts = tp.locator(".qz-ed-option");
   await opts.nth(0).fill("tangan kiri Fleming"); await opts.nth(1).fill("tangan kanan"); await opts.nth(2).fill("Lenz");
   await tp.click("#qz-ed-save");
@@ -625,6 +629,16 @@ await step("Teacher panel: records, detail with LKPD answers, Excel & PDF export
   await tp.fill('[data-ed="title"]', "Tes Sumatif Medan Magnet (versi kelas)");
   await tp.click('[data-act="item-add"][data-type="open"][data-s="2"]');
   await tp.fill('[data-ed="s.2.i.4.stem"]', "Rancang eksperimen sederhana untuk mengukur $B$ magnet ponsel.");
+  // Kolom soal guru: pratinjau LaTeX dan editor persamaan MathLive seperti siswa
+  const stemWrap = tp.locator('.mi-wrap:has([data-ed="s.2.i.4.stem"])');
+  await stemWrap.locator(".mi-preview mjx-container").first().waitFor({ timeout: 10000 });
+  await stemWrap.locator("[data-mi-eq]").click();
+  await tp.waitForSelector("#mi-eq-field", { timeout: 10000 });
+  await tp.evaluate(() => document.getElementById("mi-eq-field").setValue("B=\\frac{F}{IL}"));
+  await tp.click("#mi-eq-insert");
+  assert.match(await tp.inputValue('[data-ed="s.2.i.4.stem"]'), /\$B=\\frac\{F\}\{IL\}\$/);
+  await tp.waitForFunction(() => document.querySelectorAll('.mi-wrap:has([data-ed="s.2.i.4.stem"]) .mi-preview mjx-container').length >= 2, null, { timeout: 10000 });
+  assert.ok(await tp.locator('.ts-ed-opt .mi-wrap [data-mi-eq]').count() > 0, "MCQ options have the equation button");
   await tp.screenshot({ path: path.join(SHOTS, "22-teacher-test-editor.png") });
   await tp.click("#ts-save-btn");
   await tp.waitForFunction(() => /editan/.test(document.getElementById("ts-source-note").textContent));
